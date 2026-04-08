@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VeikenGold — Marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,...">
+  <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;base64,...">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="logo-wrap" onclick="showView('home');closeAll();closeMobile()">
+      <img src="https://s13.gifyu.com/images/bqHeB.webp" alt="VeikenGold" style="height:32px;width:auto;object-fit:contain;display:block;" />
+      <div class="logo">VEIKEN<span>GOLD</span></div>
+    </div>
+    <div class="nav-items">
+      <div class="nav-item">
+        <button class="nav-btn" onclick="toggleDrop('drop-monedas',this)">Monedas <svg viewBox="0 0 10 6"><polyline points="1,1 5,5 9,1"/></svg></button>
+        <div class="dropdown" id="drop-monedas">
+          <div class="dropdown-header">Gold oficial</div>
+          <button class="dropdown-item" onclick="go('rs')"><span class="dropdown-icon nav-game-icon"><img src="https://s13.gifyu.com/images/bqKCm.webp" alt="RuneScape" /></span><span>RuneScape Oficial<span class="dropdown-sub">RS3 · OSRS</span></span></button>
+          <button class="dropdown-item" onclick="go('wow-classic')"><span class="dropdown-icon nav-game-icon"><img src="https://s13.gifyu.com/images/bqKFp.webp" alt="WoW Classic" /></span><span>WoW Classic<span class="dropdown-sub">Era · SoD · Hardcore</span></span></button>
+          <button class="dropdown-item" onclick="go('wow-retail')"><span class="dropdown-icon nav-game-icon"><img src="https://s13.gifyu.com/images/bqKFp.webp" alt="WoW Retail" /></span><span>WoW Retail<span class="dropdown-sub">The War Within</span></span></button>
+          <div class="dropdown-divider"></div>
+          <div class="has-sub">
+            <div class="dropdown-item" style="color:var(--text2)"><span class="dropdown-icon">🔓</span><span>Servidores Privados RS<span class="dropdown-sub">Impact · RoatPkz · Orion · SpawnPK</span></span><span class="dropdown-arrow">›</span></div>
+            <div class="submenu">
+              <div class="submenu-header">Elige tu servidor</div>
+              <button class="submenu-item" onclick="goPS('impact')"><span class="sub-icon nav-game-icon"><img src="https://s13.gifyu.com/images/bqKUM.webp" alt="Impact" /></span><span>Impact<span class="dropdown-sub">Unidad: 1B</span></span><span class="sub-price">$0.10/B</span></button>
+              <button class="submenu-item" onclick="goPS('roatpkz')"><span class="sub-icon nav-game-icon"><img src="https://s13.gifyu.com/images/bqKUE.webp" alt="RoatPkz" /></span><span>RoatPkz<span class="dropdown-sub">Unidad: 1M</span></span><span class="sub-price">$0.05/M</span></button>
+              <button class="submenu-item" onclick="goPS('orion')"><span class="sub-icon nav-game-icon"><img src="https://s13.gifyu.com/images/bqKFk.webp" alt="Orion" /></span><span>Orion<span class="dropdown-sub">Unidad: 1B</span></span><span class="sub-price">$0.08/B</span></button>
+              <button class="submenu-item" onclick="goPS('spawmpk')"><span class="sub-icon nav-game-icon"><img src="https://s13.gifyu.com/images/bqKUD.webp" alt="SpawnPK" /></span><span>SpawnPK<span class="dropdown-sub">Unidad: 1T</span></span><span class="sub-price">$0.20/T</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-btn" onclick="toggleDrop('drop-mem',this)">Membresías <svg viewBox="0 0 10 6"><polyline points="1,1 5,5 9,1"/></svg></button>
+        <div class="dropdown" id="drop-mem">
+          <div class="dropdown-header">Suscripciones y Bonds</div>
+          <button class="dropdown-item" onclick="go('mem')" style="gap:12px;"><span class="dropdown-icon nav-game-icon"><img src="https://s13.gifyu.com/images/bqKFH.webp" alt="RS Bond" /></span><span>RS Bond<span class="dropdown-sub">14 días · desde $8.00</span></span></button>
+          <button class="dropdown-item" onclick="go('mem')" style="gap:12px;"><span class="dropdown-icon nav-game-icon"><img src="https://s13.gifyu.com/images/bqKFp.webp" alt="WoW Suscripción" /></span><span>WoW Suscripción<span class="dropdown-sub">30 días · desde $12.00</span></span></button>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-btn" onclick="toggleDrop('drop-svc',this)">Servicios <svg viewBox="0 0 10 6"><polyline points="1,1 5,5 9,1"/></svg></button>
+        <div class="dropdown" id="drop-svc">
+          <div class="dropdown-header">RS Services</div>
+          <button class="dropdown-item" onclick="go('boost');closeAll()">
+            <span class="dropdown-icon" style="font-size:16px;">⚡</span>
+            <span>Calculadora de Servicios<span class="dropdown-sub">Skilling · PvM · Minigames · +más</span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <!-- Currency Selector -->
+      <div class="nav-tool" id="currency-wrap">
+        <button class="nav-tool-btn" onclick="togglePanel('currency-panel',this)" id="currency-btn">
+          <span id="currency-flag">🇺🇸</span>
+          <span id="currency-code">USD</span>
+          <svg viewBox="0 0 10 6" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1,1 5,5 9,1"/></svg>
+        </button>
+        <div class="nav-panel" id="currency-panel">
+          <div class="nav-panel-title">Moneda</div>
+          <button class="nav-panel-item active" onclick="setCurrency('USD','🇺🇸','$')">🇺🇸 USD — Dólar</button>
+          <button class="nav-panel-item" onclick="setCurrency('EUR','🇪🇺','€')">🇪🇺 EUR — Euro</button>
+          <button class="nav-panel-item" onclick="setCurrency('GBP','🇬🇧','£')">🇬🇧 GBP — Libra</button>
+          <button class="nav-panel-item" onclick="setCurrency('CAD','🇨🇦','C$')">🇨🇦 CAD — Dólar CA</button>
+          <button class="nav-panel-item" onclick="setCurrency('ARS','🇦🇷','$')">🇦🇷 ARS — Peso AR</button>
+          <button class="nav-panel-item" onclick="setCurrency('VES','🇻🇪','Bs.')">🇻🇪 VES — Bolívar</button>
+          <button class="nav-panel-item" onclick="setCurrency('COP','🇨🇴','$')">🇨🇴 COP — Peso CO</button>
+          <button class="nav-panel-item" onclick="setCurrency('MXN','🇲🇽','$')">🇲🇽 MXN — Peso MX</button>
+          <button class="nav-panel-item" onclick="setCurrency('BRL','🇧🇷','R$')">🇧🇷 BRL — Real</button>
+        </div>
+      </div>
+
+      <!-- Language Selector -->
+      <div class="nav-tool" id="lang-wrap">
+        <button class="nav-tool-btn" onclick="togglePanel('lang-panel',this)" id="lang-btn">
+          <span id="lang-flag">🇪🇸</span>
+          <span id="lang-code">ES</span>
+          <svg viewBox="0 0 10 6" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1,1 5,5 9,1"/></svg>
+        </button>
+        <div class="nav-panel" id="lang-panel">
+          <div class="nav-panel-title">Idioma</div>
+          <button class="nav-panel-item active" onclick="setLang('es')">🇪🇸 Español</button>
+          <button class="nav-panel-item" onclick="setLang('en')">🇺🇸 English</button>
+        </div>
+      </div>
+
+      <!-- Auth buttons -->
+      <a class="nav-auth-btn nav-login" onclick="openAuth('login')">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="login">Iniciar Sesión</span>
+      </a>
+      <a class="nav-auth-btn nav-register" onclick="openAuth('register')">
+        <span data-i18n="register">Registrarse</span>
+      </a>
+
+      <!-- Hamburger -->
+      <button class="hamburger" id="hamburger-btn" onclick="toggleMobile()" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-section">
+      <div class="mobile-section-title">Monedas</div>
+      <button class="mobile-item" onclick="go('rs');closeMobile()"><span class="mobile-item-icon" style="width:32px;height:32px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;border-radius:6px;"><span style="font-size:28px">🎮</span></span><span>RuneScape Oficial<span class="mobile-item-sub">RS3 · OSRS · Compra y venta</span></span></button>
+      <button class="mobile-item" onclick="go('wow-classic');closeMobile()"><span class="mobile-item-icon" style="width:32px;height:32px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#0a0a0f;border-radius:6px;"><span style="font-size:28px">🎮</span></span><span>WoW Classic<span class="mobile-item-sub">Era · SoD · Hardcore</span></span></button>
+      <button class="mobile-item" onclick="go('wow-retail');closeMobile()"><span class="mobile-item-icon" style="width:32px;height:32px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#0a0a0f;border-radius:6px;"><span style="font-size:28px">🎮</span></span><span>WoW Retail<span class="mobile-item-sub">The War Within</span></span></button>
+    </div>
+    <div class="mobile-section">
+      <div class="mobile-section-title">Servidores Privados RS</div>
+      <button class="mobile-item" onclick="goPS('impact');closeMobile()"><span class="mobile-item-icon" style="width:32px;height:32px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;border-radius:6px;"><span style="font-size:28px">🎮</span></span><span>Impact<span class="mobile-item-sub">$0.10/B</span></span></button>
+      <button class="mobile-item" onclick="goPS('roatpkz');closeMobile()"><span class="mobile-item-icon" style="width:32px;height:32px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;border-radius:6px;"><span style="font-size:28px">💎</span></span><span>RoatPkz<span class="mobile-item-sub">$0.05/M</span></span></button>
+      <button class="mobile-item" onclick="goPS('orion');closeMobile()"><span class="mobile-item-icon" style="width:32px;height:32px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;border-radius:6px;"><span style="font-size:28px">💎</span></span><span>Orion<span class="mobile-item-sub">$0.08/B</span></span></button>
+      <button class="mobile-item" onclick="goPS('spawmpk');closeMobile()"><span class="mobile-item-icon" style="width:32px;height:32px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;border-radius:6px;"><span style="font-size:28px">🔰</span></span><span>SpawnPK<span class="mobile-item-sub">$0.20/T</span></span></button>
+    </div>
+    <div class="mobile-section">
+      <div class="mobile-section-title">Membresías y Servicios</div>
+      <button class="mobile-item" onclick="go('mem');closeMobile()" style="gap:14px;"><span class="mobile-item-icon" style="width:32px;height:32px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:28px">🎮</span></span><span>Membresías<span class="mobile-item-sub">RS Bond · WoW Sub</span></span></button>
+      <button class="mobile-item" onclick="go('boost');closeMobile()"><span class="mobile-item-icon">⚡</span><span>RS Skilling Boost<span class="mobile-item-sub">Mining · WC · Fishing · más</span></span></button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="view active" id="view-home">
+    <div class="hero">
+      <div class="hero-content">
+        <h1>El marketplace más<br>confiable de <em>Gaming Gold</em></h1>
+        <p>Gold, membresías y boosting para RuneScape y World of Warcraft. Entrega rápida, transacciones seguras.</p>
+        <div class="hero-badges">
+          <span class="hero-badge">⚡ Entrega &lt;10 min</span>
+          <span class="hero-badge">🔒 Pago seguro</span>
+          <span class="hero-badge">⭐ 4.9 / 5 reseñas</span>
+        </div>
+      </div>
+      <div class="hero-logo-wrap">
+        <div class="hero-logo-ring"><img src="https://s13.gifyu.com/images/bqHeB.webp" alt="VeikenGold" style="width:100%;height:100%;object-fit:cover;display:block;" /></div>
+        <div class="logo" style="font-size:14px;letter-spacing:2px;">VEIKEN<span style="color:var(--text)">GOLD</span></div>
+      </div>
+    </div>
+    <div class="games-section" style="
+      background: linear-gradient(135deg, #060c1a 0%, #0b1226 50%, #090910 100%);
+      padding: 48px 0 44px;
+      border-bottom: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+    ">
+      <div style="text-align:center; padding: 0 0 24px 0;">
+        <div class="sec-title" style="font-size:28px;display:flex;align-items:center;justify-content:center;gap:10px;">
+          <img src="data:image/png;base64,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" alt="" style="height:2em;width:auto;object-fit:contain;" />
+          Juegos Disponibles
+          <img src="data:image/png;base64,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" alt="" style="height:2em;width:auto;object-fit:contain;" />
+        </div>
+      </div>
+      <!-- Game cards grid -->
+      <div class="gcard-grid">
+
+        <!-- RuneScape Oficial -->
+        <div class="gcard gcard--rs" onclick="go('rs')">
+          <div class="gcard-img" style="background: linear-gradient(135deg,#0d2010,#1a3a18);">
+            <img src="https://s13.gifyu.com/images/bqK7e.webp" class="gcard-bg-img">
+          </div>
+          <div class="gcard-overlay"></div>
+          <span class="gcard-badge gcard-badge--hot">HOT</span>
+          <div class="gcard-content">
+            <div class="gcard-name">RuneScape Oficial</div>
+            <div class="gcard-sub">Compra · Venta · Skilling</div>
+            <div class="gcard-price">desde <strong>$0.38</strong>/M</div>
+          </div>
+          <div class="gcard-shine"></div>
+        </div>
+
+        <!-- WoW Classic -->
+        <div class="gcard gcard--wow" onclick="go('wow-classic')">
+          <div class="gcard-img" style="background: linear-gradient(135deg,#0e0a00,#2a1a00);">
+            <img src="https://s13.gifyu.com/images/bqKIh.webp" class="gcard-bg-img">
+          </div>
+          <div class="gcard-overlay"></div>
+          <span class="gcard-badge gcard-badge--hot">HOT</span>
+          <div class="gcard-content">
+            <div class="gcard-name">WoW Classic</div>
+            <div class="gcard-sub">Compra · Venta de Gold</div>
+            <div class="gcard-price">desde <strong>$0.60</strong>/K</div>
+          </div>
+          <div class="gcard-shine"></div>
+        </div>
+
+        <!-- WoW Retail -->
+        <div class="gcard gcard--wowr" onclick="go('wow-retail')">
+          <div class="gcard-img" style="background: linear-gradient(135deg,#070d1a,#0f1e38);">
+            <img src="https://s13.gifyu.com/images/bqKjq.webp" class="gcard-bg-img">
+          </div>
+          <div class="gcard-overlay"></div>
+          <div class="gcard-content">
+            <div class="gcard-name">WoW Retail</div>
+            <div class="gcard-sub">Compra · Venta de Gold</div>
+            <div class="gcard-price">desde <strong>$0.82</strong>/K</div>
+          </div>
+          <div class="gcard-shine"></div>
+        </div>
+
+        <!-- RS Private Servers -->
+        <div class="gcard gcard--ps" onclick="goPS('impact')">
+          <div class="gcard-img" style="background: linear-gradient(135deg,#14082a,#220d42);">
+            <img src="https://s13.gifyu.com/images/bqKii.webp" class="gcard-bg-img">
+          </div>
+          <div class="gcard-overlay"></div>
+          <span class="gcard-badge gcard-badge--ps">PS</span>
+          <div class="gcard-content">
+            <div class="gcard-name">RS Private Servers</div>
+            <div class="gcard-sub">Impact · RoatPkz · Orion</div>
+            <div class="gcard-price">desde <strong>$0.05</strong></div>
+          </div>
+          <div class="gcard-shine"></div>
+        </div>
+
+        <!-- Membresías -->
+        <div class="gcard gcard--mem" onclick="go('mem')">
+          <div class="gcard-img" style="background: linear-gradient(135deg,#081a0a,#0d2812);">
+            <img src="https://s13.gifyu.com/images/bqKjN.webp" class="gcard-bg-img">
+          </div>
+          <div class="gcard-overlay"></div>
+          <span class="gcard-badge gcard-badge--mem">MEM</span>
+          <div class="gcard-content">
+            <div class="gcard-name">Membresías</div>
+            <div class="gcard-sub">RS Bond · WoW Sub</div>
+            <div class="gcard-price">desde <strong>$8.00</strong></div>
+          </div>
+          <div class="gcard-shine"></div>
+        </div>
+
+        <!-- RS Skilling Boost -->
+        <div class="gcard gcard--boost" onclick="go('boost')">
+          <div class="gcard-img" style="background: linear-gradient(135deg,#1a0d00,#2e1800);">
+            <img src="https://s13.gifyu.com/images/bqKif.webp" class="gcard-bg-img">
+          </div>
+          <div class="gcard-overlay"></div>
+          <span class="gcard-badge gcard-badge--boost">BOOST</span>
+          <div class="gcard-content">
+            <div class="gcard-name">RS Skilling Boost</div>
+            <div class="gcard-sub">Mining · WC · Fishing +más</div>
+            <div class="gcard-price">desde <strong>$5.00</strong></div>
+          </div>
+          <div class="gcard-shine"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>  <!-- cierra view-home -->
+
+  <!-- RS -->
+  <div class="view" id="view-rs">
+    <div class="svc-header"><div class="svc-icon">⚔️</div><div><div class="svc-title">RuneScape Oficial</div><div class="svc-desc">Compra y venta de gold · RS3 y OSRS</div></div><button class="back-btn" onclick="showView('home')">← Volver</button></div>
+    <div class="tabs"><button class="tab active" onclick="switchTab('rs','buy')">🛒 Comprar Gold</button><button class="tab" onclick="switchTab('rs','sell')">💰 Vender Gold</button></div>
+    <div class="calc-area">
+      <div id="rs-buy">
+        <div class="calc-card">
+          <div class="calc-title">🛒 ¿Cuánto gold quieres comprar?</div>
+          <div class="calc-row">
+            <div class="calc-label">Cantidad de Gold</div>
+            <div class="calc-input-wrap">
+              <input class="calc-input" type="number" id="rs-buy-qty" value="100" min="1" max="5000" oninput="calcRS('buy');syncSlider('rs-buy-qty','rs-buy-slider',1,2000)" />
+              <div class="calc-unit">Millones (M)</div>
+            </div>
+            <input class="calc-slider" type="range" id="rs-buy-slider" min="1" max="2000" value="100" step="1" oninput="syncInput(this,'rs-buy-qty');calcRS('buy')" />
+            <div class="quick-btns">
+              <button class="quick-btn" onclick="setVal('rs-buy-qty','rs-buy-slider',100);calcRS('buy')">100M</button>
+              <button class="quick-btn" onclick="setVal('rs-buy-qty','rs-buy-slider',500);calcRS('buy')">500M</button>
+              <button class="quick-btn" onclick="setVal('rs-buy-qty','rs-buy-slider',1000);calcRS('buy')">1B</button>
+              <button class="quick-btn" onclick="setVal('rs-buy-qty','rs-buy-slider',2000);calcRS('buy')">2B</button>
+            </div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Método de entrega</div>
+            <div class="delivery-grid">
+              <button class="delivery-btn active" id="rs-buy-del-trade" onclick="selectDelivery('rs-buy','trade')"><span class="delivery-btn-icon">🤝</span><span class="delivery-btn-label">Trade</span><span class="delivery-btn-desc">GE o mundo acordado</span></button>
+              <button class="delivery-btn" id="rs-buy-del-wilderness" onclick="selectDelivery('rs-buy','wilderness')"><span class="delivery-btn-icon">💀</span><span class="delivery-btn-label">Wilderness</span><span class="delivery-btn-desc">Drop en zona PvP</span></button>
+              <button class="delivery-btn" id="rs-buy-del-tipjar" onclick="selectDelivery('rs-buy','tipjar')"><span class="delivery-btn-icon">🏺</span><span class="delivery-btn-label">Tip Jar</span><span class="delivery-btn-desc">Vía clan/dungeon</span></button>
+            </div>
+          </div>
+          <hr class="divider"/>
+          <div class="result-box">
+            <div class="result-row"><span class="result-label">Precio por millón</span><span class="result-value">$0.38</span></div>
+            <div class="result-row"><span class="result-label">Cantidad</span><span class="result-value" id="rs-buy-qty-show">100M</span></div>
+            <div class="result-row"><span class="result-label">Descuento</span><span class="result-value" id="rs-buy-disc" style="color:var(--green)">—</span></div>
+            <div class="result-row-delivery"><span class="result-label">Entrega vía</span><span class="delivery-badge" id="rs-buy-del-show">🤝 Trade</span></div>
+            <div class="result-total"><span class="result-total-label">Total a pagar</span><span class="result-total-value" id="rs-buy-total">$38.00</span></div>
+          </div>
+          <button class="order-btn" onclick="openModal()">Hacer Pedido →</button>
+          <div class="note">⚡ Entrega en menos de 10 minutos · Pago seguro</div>
+        </div>
+      </div>
+      <div id="rs-sell" style="display:none">
+        <div class="calc-card">
+          <div class="calc-title">💰 ¿Cuánto gold quieres vender?</div>
+          <div class="calc-row">
+            <div class="calc-label">Cantidad de Gold</div>
+            <div class="calc-input-wrap">
+              <input class="calc-input" type="number" id="rs-sell-qty" value="100" min="1" max="5000" oninput="calcRS('sell');syncSlider('rs-sell-qty','rs-sell-slider',1,2000)" />
+              <div class="calc-unit">Millones (M)</div>
+            </div>
+            <input class="calc-slider" type="range" id="rs-sell-slider" min="1" max="2000" value="100" step="1" oninput="syncInput(this,'rs-sell-qty');calcRS('sell')" />
+            <div class="quick-btns">
+              <button class="quick-btn" onclick="setVal('rs-sell-qty','rs-sell-slider',100);calcRS('sell')">100M</button>
+              <button class="quick-btn" onclick="setVal('rs-sell-qty','rs-sell-slider',500);calcRS('sell')">500M</button>
+              <button class="quick-btn" onclick="setVal('rs-sell-qty','rs-sell-slider',1000);calcRS('sell')">1B</button>
+            </div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Método de entrega</div>
+            <div class="delivery-grid">
+              <button class="delivery-btn active" id="rs-sell-del-trade" onclick="selectDelivery('rs-sell','trade')"><span class="delivery-btn-icon">🤝</span><span class="delivery-btn-label">Trade</span><span class="delivery-btn-desc">GE o mundo acordado</span></button>
+              <button class="delivery-btn" id="rs-sell-del-wilderness" onclick="selectDelivery('rs-sell','wilderness')"><span class="delivery-btn-icon">💀</span><span class="delivery-btn-label">Wilderness</span><span class="delivery-btn-desc">Drop en zona PvP</span></button>
+              <button class="delivery-btn" id="rs-sell-del-tipjar" onclick="selectDelivery('rs-sell','tipjar')"><span class="delivery-btn-icon">🏺</span><span class="delivery-btn-label">Tip Jar</span><span class="delivery-btn-desc">Vía clan/dungeon</span></button>
+            </div>
+          </div>
+          <hr class="divider"/>
+          <div class="result-box">
+            <div class="result-row"><span class="result-label">Precio que pagamos por millón</span><span class="result-value">$0.30</span></div>
+            <div class="result-row"><span class="result-label">Cantidad</span><span class="result-value" id="rs-sell-qty-show">100M</span></div>
+            <div class="result-row-delivery"><span class="result-label">Entrega vía</span><span class="delivery-badge" id="rs-sell-del-show">🤝 Trade</span></div>
+            <div class="result-total"><span class="result-total-label">Recibirás</span><span class="result-total-value" id="rs-sell-total">$30.00</span></div>
+          </div>
+          <button class="order-btn order-btn-green" onclick="openModal()">Vender Ahora →</button>
+          <div class="note">💸 Pago inmediato · PayPal · Crypto</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WoW CLASSIC -->
+  <div class="view" id="view-wow-classic">
+    <div class="svc-header"><div class="svc-icon">🏰</div><div><div class="svc-title">WoW Classic</div><div class="svc-desc">Compra y venta de gold · Era · SoD · Hardcore</div></div><button class="back-btn" onclick="showView('home')">← Volver</button></div>
+    <div class="tabs"><button class="tab active" onclick="switchTab('wowc','buy')">🛒 Comprar Gold</button><button class="tab" onclick="switchTab('wowc','sell')">💰 Vender Gold</button></div>
+    <div class="calc-area">
+      <div id="wowc-buy">
+        <div class="calc-card">
+          <div class="calc-title">🏰 ¿Cuánto gold WoW Classic quieres comprar?</div>
+          <div class="calc-row">
+            <div class="calc-label">Cantidad de Gold</div>
+            <div class="calc-input-wrap">
+              <input class="calc-input" type="number" id="wowc-buy-qty" value="10" min="1" oninput="calcWowSimple('wowc','buy',0.60);syncSlider('wowc-buy-qty','wowc-buy-slider',1,500)" />
+              <div class="calc-unit">Miles (K)</div>
+            </div>
+            <input class="calc-slider" type="range" id="wowc-buy-slider" min="1" max="500" value="10" step="1" oninput="syncInput(this,'wowc-buy-qty');calcWowSimple('wowc','buy',0.60)" />
+            <div class="quick-btns">
+              <button class="quick-btn" onclick="setVal('wowc-buy-qty','wowc-buy-slider',10);calcWowSimple('wowc','buy',0.60)">10K</button>
+              <button class="quick-btn" onclick="setVal('wowc-buy-qty','wowc-buy-slider',50);calcWowSimple('wowc','buy',0.60)">50K</button>
+              <button class="quick-btn" onclick="setVal('wowc-buy-qty','wowc-buy-slider',100);calcWowSimple('wowc','buy',0.60)">100K</button>
+              <button class="quick-btn" onclick="setVal('wowc-buy-qty','wowc-buy-slider',500);calcWowSimple('wowc','buy',0.60)">500K</button>
+            </div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Método de entrega</div>
+            <div class="delivery-grid">
+              <button class="delivery-btn active" id="wowc-buy-del-mail" onclick="selectDelivery('wowc-buy','mail')"><span class="delivery-btn-icon">📬</span><span class="delivery-btn-label">Mail</span><span class="delivery-btn-desc">Correo en juego</span></button>
+              <button class="delivery-btn" id="wowc-buy-del-trade" onclick="selectDelivery('wowc-buy','trade')"><span class="delivery-btn-icon">🤝</span><span class="delivery-btn-label">Trade</span><span class="delivery-btn-desc">Intercambio directo</span></button>
+              <button class="delivery-btn" id="wowc-buy-del-guild" onclick="selectDelivery('wowc-buy','guild')"><span class="delivery-btn-icon">🛡️</span><span class="delivery-btn-label">Guild</span><span class="delivery-btn-desc">Banco de guild</span></button>
+            </div>
+          </div>
+          <hr class="divider"/>
+          <div class="result-box">
+            <div class="result-row"><span class="result-label">Precio por 1K</span><span class="result-value">$0.60</span></div>
+            <div class="result-row"><span class="result-label">Cantidad</span><span class="result-value" id="wowc-buy-qty-show">10K</span></div>
+            <div class="result-row"><span class="result-label">Descuento</span><span class="result-value" id="wowc-buy-disc" style="color:var(--green)">—</span></div>
+            <div class="result-row-delivery"><span class="result-label">Entrega vía</span><span class="delivery-badge" id="wowc-buy-del-show">📬 Mail</span></div>
+            <div class="result-total"><span class="result-total-label">Total a pagar</span><span class="result-total-value" id="wowc-buy-total">$6.00</span></div>
+          </div>
+          <button class="order-btn" onclick="openModal()">Hacer Pedido →</button>
+          <div class="note">⚡ Entrega en menos de 15 minutos · Pago seguro</div>
+        </div>
+      </div>
+      <div id="wowc-sell" style="display:none">
+        <div class="calc-card">
+          <div class="calc-title">💰 ¿Cuánto gold WoW Classic quieres vender?</div>
+          <div class="calc-row">
+            <div class="calc-label">Cantidad de Gold</div>
+            <div class="calc-input-wrap">
+              <input class="calc-input" type="number" id="wowc-sell-qty" value="10" min="1" oninput="calcWowSimple('wowc','sell',0.48);syncSlider('wowc-sell-qty','wowc-sell-slider',1,500)" />
+              <div class="calc-unit">Miles (K)</div>
+            </div>
+            <input class="calc-slider" type="range" id="wowc-sell-slider" min="1" max="500" value="10" step="1" oninput="syncInput(this,'wowc-sell-qty');calcWowSimple('wowc','sell',0.48)" />
+            <div class="quick-btns">
+              <button class="quick-btn" onclick="setVal('wowc-sell-qty','wowc-sell-slider',10);calcWowSimple('wowc','sell',0.48)">10K</button>
+              <button class="quick-btn" onclick="setVal('wowc-sell-qty','wowc-sell-slider',50);calcWowSimple('wowc','sell',0.48)">50K</button>
+              <button class="quick-btn" onclick="setVal('wowc-sell-qty','wowc-sell-slider',100);calcWowSimple('wowc','sell',0.48)">100K</button>
+            </div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Método de entrega</div>
+            <div class="delivery-grid">
+              <button class="delivery-btn active" id="wowc-sell-del-mail" onclick="selectDelivery('wowc-sell','mail')"><span class="delivery-btn-icon">📬</span><span class="delivery-btn-label">Mail</span><span class="delivery-btn-desc">Correo en juego</span></button>
+              <button class="delivery-btn" id="wowc-sell-del-trade" onclick="selectDelivery('wowc-sell','trade')"><span class="delivery-btn-icon">🤝</span><span class="delivery-btn-label">Trade</span><span class="delivery-btn-desc">Intercambio directo</span></button>
+              <button class="delivery-btn" id="wowc-sell-del-guild" onclick="selectDelivery('wowc-sell','guild')"><span class="delivery-btn-icon">🛡️</span><span class="delivery-btn-label">Guild</span><span class="delivery-btn-desc">Banco de guild</span></button>
+            </div>
+          </div>
+          <hr class="divider"/>
+          <div class="result-box">
+            <div class="result-row"><span class="result-label">Precio que pagamos por 1K</span><span class="result-value">$0.48</span></div>
+            <div class="result-row"><span class="result-label">Cantidad</span><span class="result-value" id="wowc-sell-qty-show">10K</span></div>
+            <div class="result-row-delivery"><span class="result-label">Entrega vía</span><span class="delivery-badge" id="wowc-sell-del-show">📬 Mail</span></div>
+            <div class="result-total"><span class="result-total-label">Recibirás</span><span class="result-total-value" id="wowc-sell-total">$4.80</span></div>
+          </div>
+          <button class="order-btn order-btn-green" onclick="openModal()">Vender Ahora →</button>
+          <div class="note">💸 Pago inmediato · PayPal · Crypto</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WoW RETAIL -->
+  <div class="view" id="view-wow-retail">
+    <div class="svc-header"><div class="svc-icon">🌍</div><div><div class="svc-title">WoW Retail</div><div class="svc-desc">Compra y venta de gold · The War Within</div></div><button class="back-btn" onclick="showView('home')">← Volver</button></div>
+    <div class="tabs"><button class="tab active" onclick="switchTab('wowr','buy')">🛒 Comprar Gold</button><button class="tab" onclick="switchTab('wowr','sell')">💰 Vender Gold</button></div>
+    <div class="calc-area">
+      <div id="wowr-buy">
+        <div class="calc-card">
+          <div class="calc-title">🌍 ¿Cuánto gold WoW Retail quieres comprar?</div>
+          <div class="calc-row">
+            <div class="calc-label">Cantidad de Gold</div>
+            <div class="calc-input-wrap">
+              <input class="calc-input" type="number" id="wowr-buy-qty" value="10" min="1" oninput="calcWowSimple('wowr','buy',0.82);syncSlider('wowr-buy-qty','wowr-buy-slider',1,500)" />
+              <div class="calc-unit">Miles (K)</div>
+            </div>
+            <input class="calc-slider" type="range" id="wowr-buy-slider" min="1" max="500" value="10" step="1" oninput="syncInput(this,'wowr-buy-qty');calcWowSimple('wowr','buy',0.82)" />
+            <div class="quick-btns">
+              <button class="quick-btn" onclick="setVal('wowr-buy-qty','wowr-buy-slider',10);calcWowSimple('wowr','buy',0.82)">10K</button>
+              <button class="quick-btn" onclick="setVal('wowr-buy-qty','wowr-buy-slider',50);calcWowSimple('wowr','buy',0.82)">50K</button>
+              <button class="quick-btn" onclick="setVal('wowr-buy-qty','wowr-buy-slider',100);calcWowSimple('wowr','buy',0.82)">100K</button>
+              <button class="quick-btn" onclick="setVal('wowr-buy-qty','wowr-buy-slider',500);calcWowSimple('wowr','buy',0.82)">500K</button>
+            </div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Método de entrega</div>
+            <div class="delivery-grid">
+              <button class="delivery-btn active" id="wowr-buy-del-mail" onclick="selectDelivery('wowr-buy','mail')"><span class="delivery-btn-icon">📬</span><span class="delivery-btn-label">Mail</span><span class="delivery-btn-desc">Correo en juego</span></button>
+              <button class="delivery-btn" id="wowr-buy-del-trade" onclick="selectDelivery('wowr-buy','trade')"><span class="delivery-btn-icon">🤝</span><span class="delivery-btn-label">Trade</span><span class="delivery-btn-desc">Intercambio directo</span></button>
+              <button class="delivery-btn" id="wowr-buy-del-guild" onclick="selectDelivery('wowr-buy','guild')"><span class="delivery-btn-icon">🛡️</span><span class="delivery-btn-label">Guild</span><span class="delivery-btn-desc">Banco de guild</span></button>
+            </div>
+          </div>
+          <hr class="divider"/>
+          <div class="result-box">
+            <div class="result-row"><span class="result-label">Precio por 1K</span><span class="result-value">$0.82</span></div>
+            <div class="result-row"><span class="result-label">Cantidad</span><span class="result-value" id="wowr-buy-qty-show">10K</span></div>
+            <div class="result-row"><span class="result-label">Descuento</span><span class="result-value" id="wowr-buy-disc" style="color:var(--green)">—</span></div>
+            <div class="result-row-delivery"><span class="result-label">Entrega vía</span><span class="delivery-badge" id="wowr-buy-del-show">📬 Mail</span></div>
+            <div class="result-total"><span class="result-total-label">Total a pagar</span><span class="result-total-value" id="wowr-buy-total">$8.20</span></div>
+          </div>
+          <button class="order-btn" onclick="openModal()">Hacer Pedido →</button>
+          <div class="note">⚡ Entrega en menos de 15 minutos · Pago seguro</div>
+        </div>
+      </div>
+      <div id="wowr-sell" style="display:none">
+        <div class="calc-card">
+          <div class="calc-title">💰 ¿Cuánto gold WoW Retail quieres vender?</div>
+          <div class="calc-row">
+            <div class="calc-label">Cantidad de Gold</div>
+            <div class="calc-input-wrap">
+              <input class="calc-input" type="number" id="wowr-sell-qty" value="10" min="1" oninput="calcWowSimple('wowr','sell',0.65);syncSlider('wowr-sell-qty','wowr-sell-slider',1,500)" />
+              <div class="calc-unit">Miles (K)</div>
+            </div>
+            <input class="calc-slider" type="range" id="wowr-sell-slider" min="1" max="500" value="10" step="1" oninput="syncInput(this,'wowr-sell-qty');calcWowSimple('wowr','sell',0.65)" />
+            <div class="quick-btns">
+              <button class="quick-btn" onclick="setVal('wowr-sell-qty','wowr-sell-slider',10);calcWowSimple('wowr','sell',0.65)">10K</button>
+              <button class="quick-btn" onclick="setVal('wowr-sell-qty','wowr-sell-slider',50);calcWowSimple('wowr','sell',0.65)">50K</button>
+              <button class="quick-btn" onclick="setVal('wowr-sell-qty','wowr-sell-slider',100);calcWowSimple('wowr','sell',0.65)">100K</button>
+            </div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Método de entrega</div>
+            <div class="delivery-grid">
+              <button class="delivery-btn active" id="wowr-sell-del-mail" onclick="selectDelivery('wowr-sell','mail')"><span class="delivery-btn-icon">📬</span><span class="delivery-btn-label">Mail</span><span class="delivery-btn-desc">Correo en juego</span></button>
+              <button class="delivery-btn" id="wowr-sell-del-trade" onclick="selectDelivery('wowr-sell','trade')"><span class="delivery-btn-icon">🤝</span><span class="delivery-btn-label">Trade</span><span class="delivery-btn-desc">Intercambio directo</span></button>
+              <button class="delivery-btn" id="wowr-sell-del-guild" onclick="selectDelivery('wowr-sell','guild')"><span class="delivery-btn-icon">🛡️</span><span class="delivery-btn-label">Guild</span><span class="delivery-btn-desc">Banco de guild</span></button>
+            </div>
+          </div>
+          <hr class="divider"/>
+          <div class="result-box">
+            <div class="result-row"><span class="result-label">Precio que pagamos por 1K</span><span class="result-value">$0.65</span></div>
+            <div class="result-row"><span class="result-label">Cantidad</span><span class="result-value" id="wowr-sell-qty-show">10K</span></div>
+            <div class="result-row-delivery"><span class="result-label">Entrega vía</span><span class="delivery-badge" id="wowr-sell-del-show">📬 Mail</span></div>
+            <div class="result-total"><span class="result-total-label">Recibirás</span><span class="result-total-value" id="wowr-sell-total">$6.50</span></div>
+          </div>
+          <button class="order-btn order-btn-green" onclick="openModal()">Vender Ahora →</button>
+          <div class="note">💸 Pago inmediato · PayPal · Crypto</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIVATE SERVERS -->
+  <div class="view" id="view-priv">
+    <div class="svc-header"><div class="svc-icon">🔓</div><div><div class="svc-title" id="ps-title">RS Private Server</div><div class="svc-desc" id="ps-desc">Selecciona un servidor</div></div><button class="back-btn" onclick="showView('home')">← Volver</button></div>
+    <div class="tabs"><button class="tab active" onclick="switchTab('priv','buy')">🛒 Comprar Gold</button></div>
+    <div class="calc-area">
+      <div id="priv-buy">
+        <div class="calc-card">
+          <div class="calc-title">🔓 Selecciona el servidor</div>
+          <div class="calc-row">
+            <div class="calc-label">Servidor</div>
+            <div class="server-grid">
+              <div class="server-btn active" id="ps-impact" onclick="selectPS('impact')"><span style="font-size:28px">🎮</span><div class="server-name-lbl">Impact</div><div class="server-unit">Unidad: 1B</div><div class="server-price-lbl">$0.10/B</div></div>
+              <div class="server-btn" id="ps-roatpkz" onclick="selectPS('roatpkz')"><span style="font-size:28px">🎮</span><div class="server-name-lbl">RoatPkz</div><div class="server-unit">Unidad: 1M</div><div class="server-price-lbl">$0.05/M</div></div>
+              <div class="server-btn" id="ps-orion" onclick="selectPS('orion')"><span style="font-size:28px">🎮</span><div class="server-name-lbl">Orion</div><div class="server-unit">Unidad: 1B</div><div class="server-price-lbl">$0.08/B</div></div>
+              <div class="server-btn" id="ps-spawmpk" onclick="selectPS('spawmpk')"><span style="font-size:28px">🎮</span><div class="server-name-lbl">SpawnPK</div><div class="server-unit">Unidad: 1T</div><div class="server-price-lbl">$0.20/T</div></div>
+            </div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Cantidad</div>
+            <div class="calc-input-wrap">
+              <input class="calc-input" type="number" id="priv-buy-qty" value="10" min="1" oninput="calcPriv('buy');syncSlider('priv-buy-qty','priv-buy-slider',1,500)" />
+              <div class="calc-unit" id="priv-buy-unit">Billones (B)</div>
+            </div>
+            <input class="calc-slider" type="range" id="priv-buy-slider" min="1" max="500" value="10" step="1" oninput="syncInput(this,'priv-buy-qty');calcPriv('buy')" />
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Método de entrega</div>
+            <div class="delivery-grid">
+              <button class="delivery-btn active" id="priv-buy-del-tradingspot" onclick="selectDelivery('priv-buy','tradingspot')"><span class="delivery-btn-icon">🏪</span><span class="delivery-btn-label">Trading Spot</span><span class="delivery-btn-desc">Zona de comercio</span></button>
+              <button class="delivery-btn" id="priv-buy-del-trade" onclick="selectDelivery('priv-buy','trade')"><span class="delivery-btn-icon">🤝</span><span class="delivery-btn-label">Trade</span><span class="delivery-btn-desc">Intercambio directo</span></button>
+              <button class="delivery-btn" id="priv-buy-del-wilderness" onclick="selectDelivery('priv-buy','wilderness')"><span class="delivery-btn-icon">💀</span><span class="delivery-btn-label">Wilderness</span><span class="delivery-btn-desc">Drop en PvP</span></button>
+              <button class="delivery-btn" id="priv-buy-del-dueling" onclick="selectDelivery('priv-buy','dueling')"><span class="delivery-btn-icon">⚔️</span><span class="delivery-btn-label">Dueling</span><span class="delivery-btn-desc">Stake/duelo</span></button>
+              <button class="delivery-btn" id="priv-buy-del-fping" onclick="selectDelivery('priv-buy','fping')"><span class="delivery-btn-icon">🎰</span><span class="delivery-btn-label">Fping</span><span class="delivery-btn-desc">Flower Poker</span></button>
+            </div>
+          </div>
+          <hr class="divider"/>
+          <div class="result-box">
+            <div class="result-row"><span class="result-label">Servidor</span><span class="result-value" id="priv-buy-server">Impact</span></div>
+            <div class="result-row"><span class="result-label">Precio por unidad</span><span class="result-value" id="priv-buy-rate">$0.10/B</span></div>
+            <div class="result-row"><span class="result-label">Cantidad</span><span class="result-value" id="priv-buy-qty-show">10B</span></div>
+            <div class="result-row-delivery"><span class="result-label">Entrega vía</span><span class="delivery-badge" id="priv-buy-del-show">🏪 Trading Spot</span></div>
+            <div class="result-total"><span class="result-total-label">Total a pagar</span><span class="result-total-value" id="priv-buy-total">$1.00</span></div>
+          </div>
+          <button class="order-btn" onclick="openModal()">Hacer Pedido →</button>
+          <div class="note">Indica servidor al contactar · Entrega rápida</div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- MEMBERSHIPS -->
+  <div class="view" id="view-mem">
+    <div class="svc-header"><div class="svc-icon">💳</div><div><div class="svc-title">Membresías</div><div class="svc-desc">RS Bond · WoW Suscripción</div></div><button class="back-btn" onclick="showView('home')">← Volver</button></div>
+    <div class="calc-area">
+      <div style="max-width:640px;margin:0 auto">
+        <div class="mem-grid">
+          <div class="mem-card"><div style="width:100%;height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><span style="font-size:28px">🎮</span></div><div class="mem-game">RuneScape</div><div class="mem-name">⚔️ RS Bond</div><div class="mem-duration">14 días de membresía</div><div class="mem-price">$8.00</div><button class="mem-buy-btn" onclick="openModal()">Comprar Bond</button></div>
+          <div class="mem-card"><div style="width:100%;height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><span style="font-size:28px">🎮</span></div><div class="mem-game">RuneScape</div><div class="mem-name">⚔️ RS Bond x3</div><div class="mem-duration">42 días de membresía</div><div class="mem-price">$22.00</div><button class="mem-buy-btn" onclick="openModal()">Comprar Pack x3</button></div>
+          <div class="mem-card"><div style="width:100%;height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;border-radius:8px;overflow:hidden;"><span style="font-size:28px">🎮</span></div><div class="mem-game">World of Warcraft</div><div class="mem-name">🐉 WoW Sub — 1 mes</div><div class="mem-duration">30 días de acceso</div><div class="mem-price">$12.00</div><button class="mem-buy-btn" onclick="openModal()">Comprar Sub</button></div>
+          <div class="mem-card"><div style="width:100%;height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;border-radius:8px;overflow:hidden;"><span style="font-size:28px">🎮</span></div><div class="mem-game">World of Warcraft</div><div class="mem-name">🐉 WoW Sub — 3 meses</div><div class="mem-duration">90 días de acceso</div><div class="mem-price">$33.00</div><button class="mem-buy-btn" onclick="openModal()">Comprar Sub x3</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOST -->
+  <div class="view" id="view-boost">
+    <div class="svc-header"><div class="svc-icon">⚡</div><div><div class="svc-title">Calculadora de Servicios RS</div><div class="svc-desc">Selecciona el servicio y calcula tu presupuesto al instante</div></div><button class="back-btn" onclick="showView('home')">← Volver</button></div>
+    <div class="calc-area">
+      <div style="max-width:680px;margin:0 auto">
+        <div class="skill-grid">
+          <div class="skill-card" onclick="selectSkill(this,'Skilling',0.08)"><div class="skill-icon">⚒️</div><div class="skill-name">Skilling</div><div class="skill-range">Nivel 1–99</div><div class="skill-price">$0.08/lvl</div></div>
+          <div class="skill-card" onclick="selectSkill(this,'Quests',0.10)"><div class="skill-icon">📜</div><div class="skill-name">Quests</div><div class="skill-range">Por quest</div><div class="skill-price">$0.10/u</div></div>
+          <div class="skill-card" onclick="selectSkill(this,'Minigames',0.09)"><div class="skill-icon">🎯</div><div class="skill-name">Minigames</div><div class="skill-range">Por sesión</div><div class="skill-price">$0.09/u</div></div>
+          <div class="skill-card" onclick="selectSkill(this,'PvMing',0.15)"><div class="skill-icon">⚔️</div><div class="skill-name">PvMing</div><div class="skill-range">Por boss/hora</div><div class="skill-price">$0.15/u</div></div>
+          <div class="skill-card" onclick="selectSkill(this,'Achievement Diary',0.12)"><div class="skill-icon">📋</div><div class="skill-name">Achievement Diary</div><div class="skill-range">Por diary</div><div class="skill-price">$0.12/u</div></div>
+          <div class="skill-card" onclick="selectSkill(this,'Fire Cape',5.00)"><div class="skill-icon">🔥</div><div class="skill-name">Fire Cape</div><div class="skill-range">1 servicio</div><div class="skill-price">$5.00</div></div>
+          <div class="skill-card" onclick="selectSkill(this,'Infernal Cape',18.00)"><div class="skill-icon">🌋</div><div class="skill-name">Infernal Cape</div><div class="skill-range">1 servicio</div><div class="skill-price">$18.00</div></div>
+          <div class="skill-card" onclick="selectSkill(this,'Quiver',8.00)"><div class="skill-icon">🏹</div><div class="skill-name">Quiver</div><div class="skill-range">1 servicio</div><div class="skill-price">$8.00</div></div>
+          <div class="skill-card" onclick="selectSkill(this,'Combat Achievement',0.20)"><div class="skill-icon">🏆</div><div class="skill-name">Combat Achievement</div><div class="skill-range">Por tier</div><div class="skill-price">$0.20/u</div></div>
+          <div class="skill-card" onclick="selectSkill(this,'Gauntlets',6.00)"><div class="skill-icon">🧤</div><div class="skill-name">Gauntlets</div><div class="skill-range">1 servicio</div><div class="skill-price">$6.00</div></div>
+        </div>
+        <div class="calc-card" style="margin-top:22px">
+          <div class="calc-title">⚡ Cotización de Skilling</div>
+          <div style="font-size:12px;color:#5a5870;margin-bottom:18px" id="boost-skill-name">Selecciona una habilidad arriba</div>
+          <div class="lvl-row">
+            <div class="lvl-box calc-row">
+              <div class="calc-label">Nivel Actual</div>
+              <div class="calc-input-wrap"><input class="calc-input" type="number" id="boost-from" value="1" min="1" max="98" oninput="calcBoost()" /><div class="calc-unit">lvl</div></div>
+            </div>
+            <div class="lvl-box calc-row">
+              <div class="calc-label">Nivel Deseado</div>
+              <div class="calc-input-wrap"><input class="calc-input" type="number" id="boost-to" value="99" min="2" max="99" oninput="calcBoost()" /><div class="calc-unit">lvl</div></div>
+            </div>
+          </div>
+          <hr class="divider"/>
+          <div class="result-box">
+            <div class="result-row"><span class="result-label">Habilidad</span><span class="result-value" id="boost-res-skill">—</span></div>
+            <div class="result-row"><span class="result-label">Niveles a subir</span><span class="result-value" id="boost-res-lvls">—</span></div>
+            <div class="result-row"><span class="result-label">Precio por nivel</span><span class="result-value" id="boost-res-rate">—</span></div>
+            <div class="result-total"><span class="result-total-label">Total estimado</span><span class="result-total-value" id="boost-res-total" style="color:var(--gold)">—</span></div>
+          </div>
+          <button class="order-btn order-btn-gold" id="boost-order-btn" disabled onclick="openModal()">Selecciona una habilidad</button>
+          <div class="note">Tiempo estimado según habilidad · Cuenta segura garantizada</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER MODAL -->
+  <div id="order-modal" style="display:none">
+    <div class="modal-overlay" onclick="closeModal(event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-icon">🎮</div>
+        <div class="modal-title">¡Pedido Recibido!</div>
+        <div class="modal-desc">Tu pedido ha sido registrado correctamente.<br>Contáctanos por Discord para completar la transacción. Respuesta inmediata garantizada.</div>
+        <button class="modal-btn" onclick="window.open('https://discord.com/invite/x5Y6kDyxYD','_blank')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.030z"/></svg>
+          Ir a Discord
+        </button>
+        <button class="modal-close" onclick="closeModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  
+  <!-- GOOGLE REVIEWS SECTION -->
+  <section class="greview-section">
+    <div class="greview-header">
+      <div class="greview-tp-badge">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        <span>Google Reviews</span>
+      </div>
+      <div class="greview-score">
+        <div class="greview-stars-row">★★★★★</div>
+        <span class="greview-score-num" id="greview-score-num">5.0</span>
+        <span class="greview-score-sub" id="greview-score-total">· Verificadas</span>
+      </div>
+      <a href="https://g.page/r/CXVQJSelnVqlEAE/review" target="_blank" class="greview-all-btn">Ver todas →</a>
+    </div>
+
+    <div class="greview-track-wrap">
+      <div class="greview-track" id="greview-track">
+
+        <div class="greview-card" onclick="window.open('https://g.page/r/CXVQJSelnVqlEAE/review','_blank')" style="cursor:pointer;">
+          <div class="greview-card-top">
+            <div class="greview-stars">★★★★★</div>
+            <span class="greview-date">Feb 29, 2026</span>
+          </div>
+          <div class="greview-title">Excelente atención</div>
+          <div class="greview-body">Excelente atención, pagos garantizados. Y los precios están buenos muchas gracias</div>
+          <div class="greview-user">
+            <div class="greview-avatar" style="background:#00897b;">BE</div>
+            <div>
+              <div class="greview-name">betzabeth</div>
+              <div class="greview-verified">✔ Verified purchase</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="greview-card" onclick="window.open('https://g.page/r/CXVQJSelnVqlEAE/review','_blank')" style="cursor:pointer;">
+          <div class="greview-card-top">
+            <div class="greview-stars">★★★★★</div>
+            <span class="greview-date">Feb 29, 2026</span>
+          </div>
+          <div class="greview-title">Buen servicio y me guiaron cuando...</div>
+          <div class="greview-body">Buen servicio y me guiaron cuando estaba perdido</div>
+          <div class="greview-user">
+            <div class="greview-avatar" style="background:#1565c0;">LC</div>
+            <div>
+              <div class="greview-name">Luis Carvajal</div>
+              <div class="greview-verified">✔ Verified purchase</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="greview-card" onclick="window.open('https://g.page/r/CXVQJSelnVqlEAE/review','_blank')" style="cursor:pointer;">
+          <div class="greview-card-top">
+            <div class="greview-stars">★★★★★</div>
+            <span class="greview-date">Feb 19, 2026</span>
+          </div>
+          <div class="greview-title">Muy bueno el nuevo metodo de...</div>
+          <div class="greview-body">Muy bueno el nuevo metodo de transaccion, eficiente, rápido</div>
+          <div class="greview-user">
+            <div class="greview-avatar" style="background:#6a1b9a;">AB</div>
+            <div>
+              <div class="greview-name">Antonio Barreto</div>
+              <div class="greview-verified">✔ Verified purchase</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="greview-card" onclick="window.open('https://g.page/r/CXVQJSelnVqlEAE/review','_blank')" style="cursor:pointer;">
+          <div class="greview-card-top">
+            <div class="greview-stars">★★★★★</div>
+            <span class="greview-date">Ene 15, 2026</span>
+          </div>
+          <div class="greview-title">Entrega super rápida</div>
+          <div class="greview-body">Pedí gold para RuneScape y en menos de 10 minutos lo tenía en mi cuenta. Totalmente recomendado.</div>
+          <div class="greview-user">
+            <div class="greview-avatar" style="background:#c62828;">MR</div>
+            <div>
+              <div class="greview-name">Miguel R.</div>
+              <div class="greview-verified">✔ Verified purchase</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="greview-card" onclick="window.open('https://g.page/r/CXVQJSelnVqlEAE/review','_blank')" style="cursor:pointer;">
+          <div class="greview-card-top">
+            <div class="greview-stars">★★★★★</div>
+            <span class="greview-date">Ene 8, 2026</span>
+          </div>
+          <div class="greview-title">El mejor precio del mercado</div>
+          <div class="greview-body">He comprado en varios sitios y VeikenGold tiene los mejores precios y la mejor atención. 100% recomendable.</div>
+          <div class="greview-user">
+            <div class="greview-avatar" style="background:#2e7d32;">CP</div>
+            <div>
+              <div class="greview-name">Carlos P.</div>
+              <div class="greview-verified">✔ Verified purchase</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="greview-card" onclick="window.open('https://g.page/r/CXVQJSelnVqlEAE/review','_blank')" style="cursor:pointer;">
+          <div class="greview-card-top">
+            <div class="greview-stars">★★★★★</div>
+            <span class="greview-date">Dic 22, 2025</span>
+          </div>
+          <div class="greview-title">Servicio confiable y seguro</div>
+          <div class="greview-body">Llevo meses comprando aquí y siempre todo perfecto. Soporte responde muy rápido por Discord.</div>
+          <div class="greview-user">
+            <div class="greview-avatar" style="background:#e65100;">SV</div>
+            <div>
+              <div class="greview-name">Sofia V.</div>
+              <div class="greview-verified">✔ Verified purchase</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <button class="greview-nav greview-prev" onclick="moveReviews(-1)" aria-label="Anterior">‹</button>
+      <button class="greview-nav greview-next" onclick="moveReviews(1)" aria-label="Siguiente">›</button>
+    </div>
+
+    <div class="greview-dots" id="greview-dots"></div>
+  </section>
+
+<footer class="footer">
+
+  <!-- REPUTACIÓN -->
+  <div class="footer-reviews">
+    <div class="footer-reviews-title">Nuestra Reputación — Verifica nuestras referencias</div>
+    <div class="reviews-grid" style="justify-content:center;max-width:750px;margin:0 auto;">
+      <a class="review-card" href="https://discord.com/invite/x5Y6kDyxYD" target="_blank" rel="noopener" style="text-decoration:none"><div class="review-platform-icon" style="background:#1e1e35"><svg viewBox="0 0 24 24" width="22" height="22" fill="#5865f2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.030z"/></svg></div><div class="review-info"><div class="review-platform">Discord</div><div class="review-stars">★★★★★</div><div class="review-count">Servidor verificado</div></div><span class="review-badge badge-verified">Verificado</span></a>
+      <a class="review-card" href="https://www.sythe.org/threads/veikengold-services-vouch-thread" target="_blank" rel="noopener" style="text-decoration:none"><div class="review-platform-icon" style="background:#1a1200;overflow:hidden;padding:4px;"><span style="font-size:28px">🎮</span></div><div class="review-info"><div class="review-platform">Sythe.org</div><div class="review-stars">★★★★★</div><div class="review-count">Marketplace RS de confianza</div></div><span class="review-badge badge-trusted">Trusted</span></a>
+      <a class="review-card" href="https://g.page/r/CXVQJSelnVqlEAE/review" target="_blank" rel="noopener" style="text-decoration:none"><div class="review-platform-icon" style="background:#1a0d0d"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></div><div class="review-info"><div class="review-platform">Google Reviews</div><div class="review-stars" style="color:#fbbc05">★★★★★</div><div class="review-count">5.0 · Reviews verificadas</div></div><span class="review-badge badge-verified">5.0 ★</span></a>
+    </div>
+  </div>
+
+  <!-- MAIN FOOTER -->
+  <div class="footer-main">
+    <div class="footer-brand">
+      <div class="footer-logo" style="display:flex;align-items:center;gap:10px;">
+        <img src="https://s13.gifyu.com/images/bqHeB.webp" alt="VeikenGold" style="height:28px;width:auto;object-fit:contain;" />
+        VEIKEN<span>GOLD</span>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin: 12px 0 10px 0;">
+        <span style="display:flex;align-items:center;gap:5px;background:rgba(77,184,255,.08);border:1px solid rgba(77,184,255,.2);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--accent);font-weight:600;">⚡ Entrega rápida</span>
+        <span style="display:flex;align-items:center;gap:5px;background:rgba(77,184,255,.08);border:1px solid rgba(77,184,255,.2);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--accent);font-weight:600;">🔒 Pago seguro</span>
+        <span style="display:flex;align-items:center;gap:5px;background:rgba(77,184,255,.08);border:1px solid rgba(77,184,255,.2);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--accent);font-weight:600;">⭐ 4.9/5</span>
+      </div>
+      <p class="footer-brand-desc">Tu marketplace de confianza!</p>
+    </div>
+
+    <div class="footer-col">
+      <div class="footer-col-title">Servicios</div>
+      <a class="footer-col-link" onclick="go('rs');window.scrollTo(0,0)">Monedas</a>
+      <a class="footer-col-link" onclick="go('rs');window.scrollTo(0,0)">Cuentas</a>
+      <a class="footer-col-link" onclick="go('rs');window.scrollTo(0,0)">Items</a>
+      <a class="footer-col-link" onclick="go('rs');window.scrollTo(0,0)">Top Ups</a>
+      <a class="footer-col-link" onclick="go('boost');window.scrollTo(0,0)">Boosting</a>
+    </div>
+
+
+
+    <div class="footer-col">
+      <div class="footer-col-title">Legal</div>
+      <a class="footer-col-link" onclick="openLegal('tos')" style="cursor:pointer;">Términos de Servicio</a>
+      <a class="footer-col-link" onclick="openLegal('privacy')" style="cursor:pointer;">Política de Privacidad</a>
+      <a class="footer-col-link" onclick="openLegal('accounts')" style="cursor:pointer;">Política de Cuentas</a>
+      <a class="footer-col-link" onclick="openLegal('refunds')" style="cursor:pointer;">Política de Reembolsos</a>
+      <a class="footer-col-link" onclick="openLegal('boosting')" style="cursor:pointer;">Normas de Boosting</a>
+    </div>
+
+    <div class="footer-col">
+      <div class="footer-col-title">Contacto</div>
+      <a class="footer-social-btn" href="https://discord.com/invite/x5Y6kDyxYD" target="_blank" rel="noopener">
+        <span class="fsb-icon" style="background:#5865f2;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.030z"/></svg>
+        </span>
+        <span class="fsb-label">Discord</span>
+      </a>
+      <a class="footer-social-btn" href="https://wa.me/message/VEIKENGOLD" target="_blank" rel="noopener">
+        <span class="fsb-icon" style="background:#25d366;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        </span>
+        <span class="fsb-label">WhatsApp</span>
+      </a>
+      <a class="footer-social-btn" href="https://beacons.ai/veikengold" target="_blank" rel="noopener">
+        <span class="fsb-icon" style="background:#6c47ff;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><circle cx="12" cy="12" r="3"/><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6a6 6 0 1 0 6 6 6 6 0 0 0-6-6zm0 10a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/></svg>
+        </span>
+        <span class="fsb-label">Beacons</span>
+      </a>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-copyright">© 2026 VeikenGold. Todos los derechos reservados.</div>
+    <div class="footer-tagline">Entrega rápida · Pago seguro · Soporte 24/7</div>
+  </div>
+
+</footer>
+
+  <script src="script.js"></script>
+
+  <!-- LEGAL MODAL -->
+  <div id="legal-modal" style="display:none;">
+    <div class="legal-overlay" onclick="closeLegal(event)">
+      <div class="legal-box" onclick="event.stopPropagation()">
+        <div class="legal-header">
+          <div class="legal-title" id="legal-modal-title">Términos de Servicio</div>
+          <button class="legal-close" onclick="closeLegal()">×</button>
+        </div>
+        <div class="legal-tabs" id="legal-tabs">
+          <button class="legal-tab active" onclick="switchLegalTab('tos',this)">OSRS / RSPS</button>
+          <button class="legal-tab" onclick="switchLegalTab('accounts',this)">Cuentas</button>
+          <button class="legal-tab" onclick="switchLegalTab('boosting',this)">Boosting</button>
+          <button class="legal-tab" onclick="switchLegalTab('privacy',this)">Privacidad</button>
+          <button class="legal-tab" onclick="switchLegalTab('refunds',this)">Reembolsos</button>
+        </div>
+        <div class="legal-body">
+
+          <!-- TOS: OSRS / RSPS -->
+          <div class="legal-section active" id="legal-tos">
+            <div class="legal-note">Estas reglas aplican a todos los servicios de Gold (OSRS y RSPS) ofrecidos por VeikenGold.</div>
+            <div class="legal-rule"><div class="legal-num">1</div><div class="legal-rule-text"><strong>Sin contacto por DM.</strong> No nos hacemos responsables de conversaciones fuera de nuestro servidor. Nuestros servicios se limitan al sistema de tickets y canales designados.</div></div>
+            <div class="legal-rule"><div class="legal-num">2</div><div class="legal-rule-text"><strong>Nunca vamos primero.</strong> Todo pago debe realizarse antes del servicio. Si pagas con crypto, esperamos 1 confirmación antes de procesar y entregar el pedido.</div></div>
+            <div class="legal-rule"><div class="legal-num">3</div><div class="legal-rule-text"><strong>Sin responsabilidad por sanciones.</strong> No somos responsables de ningún "ban", "rollback", "jail" o recuperación de cuenta que ocurra tras nuestros servicios. El RWT y otros servicios van contra las reglas de OSRS y la mayoría de RSPS.</div></div>
+            <div class="legal-rule"><div class="legal-num">4</div><div class="legal-rule-text"><strong>Seguridad de cuenta comprada.</strong> Si adquiriste una cuenta y no cambiaste la contraseña, revisaste las "CUENTAS VINCULADAS" y activaste 2FA, no nos responsabilizamos si alguien más accede a ella.</div></div>
+            <div class="legal-rule"><div class="legal-num">5</div><div class="legal-rule-text"><strong>Tiempos de respuesta.</strong> Si abriste un ticket y aún no respondemos, por favor sé paciente. Te atenderemos lo antes posible.</div></div>
+            <div class="legal-rule"><div class="legal-num">6</div><div class="legal-rule-text"><strong>Resolución de disputas.</strong> Podemos tardar hasta 7 días hábiles en resolver un problema entre cliente y proveedor. Reporta cualquier actividad maliciosa a @veikengold (UID 219647531573837825).</div></div>
+            <div class="legal-rule"><div class="legal-num">7</div><div class="legal-rule-text"><strong>Único autorizado.</strong> El único rol autorizado para proveer nuestros servicios es @Veiken ~ OWNER.</div></div>
+            <div class="legal-rule"><div class="legal-num">8</div><div class="legal-rule-text"><strong>Entrega por cuenta.</strong> Si eliges entrega de gold vía CUENTA, tienes máximo 30 minutos para cambiar la información de la cuenta o mover el gold para confirmar que está seguro. Aplica para vendedores y compradores.</div></div>
+            <div class="legal-rule"><div class="legal-num">9</div><div class="legal-rule-text"><strong>Riesgo de ban.</strong> Debes ser consciente de la posibilidad de ser baneado y perder tu dinero real o gold obtenido a través del mercado negro de OSRS/RSPS. No nos responsabilizamos por esas pérdidas a menos que sea causado directamente por el Owner o Staff.</div></div>
+            <div class="legal-rule"><div class="legal-num">10</div><div class="legal-rule-text"><strong>Entrega por Wilderness/FP/Duel.</strong> Si el proveedor es baneado durante la entrega antes de completarla, no somos responsables ya que escapa a nuestro control.</div></div>
+            <div class="legal-rule"><div class="legal-num">11</div><div class="legal-rule-text"><strong>Alto riesgo en RSPS.</strong> Actualmente todos los RSPS tienen una alta tasa de bans. Compra o vende bajo tu propio riesgo.</div></div>
+            <div class="legal-rule"><div class="legal-num">12</div><div class="legal-rule-text"><strong>Verificación de IP.</strong> Verifica tu IP antes de comprar gold. Si tu IP está baneada (no la del proveedor), no habrá reembolso.</div></div>
+            <div class="legal-rule"><div class="legal-num">13</div><div class="legal-rule-text"><strong>Fin del servicio.</strong> Una vez completado el servicio — ya sea que el comprador recibió su producto o el vendedor entregó y cobró — el servicio de VeikenGold se considera finalizado. No somos responsables de lo que ocurra después, incluyendo guerras de clanes, conflictos o disputas personales.</div></div>
+          </div>
+
+          <!-- CUENTAS -->
+          <div class="legal-section" id="legal-accounts">
+            <div class="legal-note">Política aplicable a la compra y venta de cuentas de RuneScape a través de VeikenGold.</div>
+            <div class="legal-rule"><div class="legal-num">1</div><div class="legal-rule-text"><strong>Aceptación de reglas.</strong> Al abrir un ticket de compra de cuenta, aceptas automáticamente todos estos términos.</div></div>
+            <div class="legal-rule"><div class="legal-num">2</div><div class="legal-rule-text"><strong>Cuentas no registradas.</strong> Todas las cuentas sin registro son creadas con propósito de venta por nuestro equipo.</div></div>
+            <div class="legal-rule"><div class="legal-num">3</div><div class="legal-rule-text"><strong>Información entregada.</strong> Al recibir tu cuenta obtendrás credenciales de RuneScape + Email. Debes cambiar AMBAS contraseñas inmediatamente. También verifica las CUENTAS VINCULADAS en el sitio de RuneScape.</div></div>
+            <div class="legal-rule"><div class="legal-num">4</div><div class="legal-rule-text"><strong>Diferencias en la cuenta.</strong> Si hay diferencias entre la cuenta vista y comprada, debes reportarlas dentro de las primeras 24 horas.</div></div>
+            <div class="legal-rule"><div class="legal-num">5</div><div class="legal-rule-text"><strong>Bans y bloqueos.</strong> No somos responsables de ningún BAN, LOCK o hackeo una vez que te enviamos la información de la cuenta, ya que tendrás acceso completo al EMAIL ORIGINAL para hacer apelaciones.</div></div>
+            <div class="legal-rule"><div class="legal-num">6</div><div class="legal-rule-text"><strong>Garantía de 1 mes.</strong> Desde que obtienes acceso a la cuenta tienes 1 MES de garantía. Si ocurre un incidente en ese período, el staff investigará. De ser procedente, podrás elegir entre reembolso 100%, crédito en tienda, o cuenta similar.</div></div>
+            <div class="legal-rule"><div class="legal-num">7</div><div class="legal-rule-text"><strong>Origen de cuentas.</strong> No somos OO de todas las cuentas. Las cuentas NO REGISTRADAS son entrenadas por nuestro equipo interno. Las cuentas REGISTRADAS pueden ser reventas.</div></div>
+            <div class="legal-rule"><div class="legal-num">8</div><div class="legal-rule-text"><strong>Canal oficial.</strong> Solo usa el sistema de tickets para comprar cuentas. No hacemos transacciones fuera del ticket.</div></div>
+            <div class="legal-rule"><div class="legal-num">9</div><div class="legal-rule-text"><strong>Pago primero.</strong> Todo pago debe enviarse primero y ser confirmado antes de entregarte la información de la cuenta.</div></div>
+            <div class="legal-rule"><div class="legal-num">10</div><div class="legal-rule-text"><strong>Recuperación dentro del mes.</strong> Si la cuenta es recuperada dentro del mes posterior a la venta por parte del proveedor, puedes recibir reembolso. Pasado ese tiempo, pierdes la garantía.</div></div>
+            <div class="legal-rule"><div class="legal-num">11</div><div class="legal-rule-text"><strong>Términos de Sythe.</strong> Seguimos todos los términos de Sythe para cuentas. Consulta las reglas de la sección de OSRS Accounts en sythe.org.</div></div>
+          </div>
+
+          <!-- BOOSTING -->
+          <div class="legal-section" id="legal-boosting">
+            <div class="legal-note">Normas de conducta y políticas aplicables al servicio de RS Skilling Boost.</div>
+            <div class="legal-rule"><div class="legal-num">1</div><div class="legal-rule-text"><strong>Respeto mutuo.</strong> Trata a todos con amabilidad. El acoso, discurso de odio o discriminación no serán tolerados.</div></div>
+            <div class="legal-rule"><div class="legal-num">2</div><div class="legal-rule-text"><strong>Sin spam.</strong> Evita inundar el chat con mensajes excesivos. Mantén las conversaciones significativas.</div></div>
+            <div class="legal-rule"><div class="legal-num">3</div><div class="legal-rule-text"><strong>Sin contenido NSFW.</strong> Esto incluye lenguaje explícito, imágenes o temas inapropiados. El servidor debe ser apto para todos.</div></div>
+            <div class="legal-rule"><div class="legal-num">4</div><div class="legal-rule-text"><strong>Sin publicidad.</strong> No toleramos ningún tipo de publicidad de productos, servicios o servidores externos sin permiso de los administradores.</div></div>
+            <div class="legal-rule"><div class="legal-num">5</div><div class="legal-rule-text"><strong>Privacidad.</strong> No compartas información personal tuya ni de otros miembros. Mantén las conversaciones dentro del servidor.</div></div>
+            <div class="legal-rule"><div class="legal-num">6</div><div class="legal-rule-text"><strong>Mantente en el tema.</strong> Usa los canales apropiados para cada tipo de discusión. Consulta a un moderador si no sabes dónde publicar.</div></div>
+            <div class="legal-rule"><div class="legal-num">7</div><div class="legal-rule-text"><strong>Pagos y seguridad.</strong> Todos los pagos deben realizarse a través del sistema de tickets para garantizar la seguridad de ambas partes. Cualquier transacción fuera del ticket va contra nuestros TOS.</div></div>
+            <div class="legal-rule"><div class="legal-num">8</div><div class="legal-rule-text"><strong>Política de reembolsos en boosting.</strong> No se otorgan reembolsos una vez iniciado el servicio. Si cambias la contraseña durante el boost, el servicio se termina sin reembolso a menos que un admin sea notificado con antelación.</div></div>
+          </div>
+
+          <!-- PRIVACIDAD -->
+          <div class="legal-section" id="legal-privacy">
+            <div class="legal-note">VeikenGold respeta tu privacidad. Esta política explica cómo manejamos tu información.</div>
+            <div class="legal-rule"><div class="legal-num">1</div><div class="legal-rule-text"><strong>Información recopilada.</strong> Solo recopilamos la información necesaria para completar tu pedido: usuario de Discord, método de pago y datos del juego.</div></div>
+            <div class="legal-rule"><div class="legal-num">2</div><div class="legal-rule-text"><strong>Uso de la información.</strong> Tu información se usa exclusivamente para procesar y entregar tu pedido. No la vendemos ni compartimos con terceros.</div></div>
+            <div class="legal-rule"><div class="legal-num">3</div><div class="legal-rule-text"><strong>Confidencialidad.</strong> Toda información personal compartida durante una transacción se mantiene confidencial y segura.</div></div>
+            <div class="legal-rule"><div class="legal-num">4</div><div class="legal-rule-text"><strong>Comunicaciones.</strong> Solo nos comunicamos a través de nuestro servidor de Discord oficial y el sistema de tickets. Nunca te contactaremos por DM para pedirte información personal o pagos.</div></div>
+            <div class="legal-rule"><div class="legal-num">5</div><div class="legal-rule-text"><strong>Seguridad.</strong> Implementamos medidas de seguridad para proteger tu información. Sin embargo, ningún sistema es 100% seguro. Te recomendamos usar contraseñas únicas y activar 2FA siempre que sea posible.</div></div>
+          </div>
+
+          <!-- REEMBOLSOS -->
+          <div class="legal-section" id="legal-refunds">
+            <div class="legal-note">Política de reembolsos de VeikenGold para todos los servicios.</div>
+            <div class="legal-rule"><div class="legal-num">1</div><div class="legal-rule-text"><strong>Servicios completados.</strong> Debido a la naturaleza de los artículos y servicios virtuales, no se otorgan reembolsos una vez que el servicio ha sido prestado.</div></div>
+            <div class="legal-rule"><div class="legal-num">2</div><div class="legal-rule-text"><strong>Antes del servicio.</strong> Puedes solicitar reembolso si el proveedor aún no ha iniciado el servicio.</div></div>
+            <div class="legal-rule"><div class="legal-num">3</div><div class="legal-rule-text"><strong>Servicio iniciado.</strong> Si cambias de opinión después de que el proveedor haya comenzado, se te cobrará por el trabajo realizado hasta ese momento.</div></div>
+            <div class="legal-rule"><div class="legal-num">4</div><div class="legal-rule-text"><strong>Boosting — cambio de contraseña.</strong> Cambiar la contraseña durante un boost termina el servicio sin reembolso, a menos que hayas notificado a un admin con antelación.</div></div>
+            <div class="legal-rule"><div class="legal-num">5</div><div class="legal-rule-text"><strong>Garantía de cuentas.</strong> Las cuentas tienen 1 mes de garantía desde la entrega. Si es recuperada por el proveedor original dentro de ese período, aplica reembolso o cuenta similar.</div></div>
+            <div class="legal-rule"><div class="legal-num">6</div><div class="legal-rule-text"><strong>Resolución de disputas.</strong> Tenemos hasta 7 días hábiles para resolver cualquier disputa. Reporta problemas a @veikengold en Discord.</div></div>
+            <div class="legal-rule"><div class="legal-num">7</div><div class="legal-rule-text"><strong>Aclaraciones previas.</strong> Te animamos a aclarar cualquier duda antes de realizar un pago para evitar malentendidos.</div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" style="display:none;">
+    <div class="auth-overlay" onclick="closeAuth(event)">
+      <div class="auth-box" onclick="event.stopPropagation()">
+        <div class="auth-close-row"><button class="auth-close" onclick="closeAuth()">×</button></div>
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Iniciar Sesión</button>
+          <button class="auth-tab" id="auth-tab-register" onclick="switchAuthTab('register')">Registrarse</button>
+        </div>
+        <div class="auth-body">
+          <!-- LOGIN -->
+          <div class="auth-section active" id="auth-login">
+            <div class="auth-title" data-i18n="welcome_back">¡Bienvenido de vuelta!</div>
+            <div class="auth-sub" data-i18n="login_sub">Accede a tu cuenta para ver tus pedidos y gestionar tus transacciones.</div>
+            <div class="auth-notice" data-i18n="login_notice">🔔 Actualmente el sistema de cuentas se gestiona a través de Discord. Usa el botón de abajo para contactarnos.</div>
+            <div class="auth-field">
+              <label class="auth-label" data-i18n="email">Correo / Usuario Discord</label>
+              <input class="auth-input" type="text" placeholder="usuario#0000 o email@ejemplo.com" />
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" data-i18n="password">Contraseña</label>
+              <input class="auth-input" type="password" placeholder="••••••••" />
+            </div>
+            <button class="auth-submit" data-i18n="login_btn">Iniciar Sesión</button>
+            <div class="auth-divider"><span data-i18n="or">o continúa con</span></div>
+            <button class="auth-discord-btn" onclick="window.open('https://discord.com/invite/x5Y6kDyxYD','_blank')">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.030z"/></svg>
+              <span data-i18n="discord_login">Continuar con Discord</span>
+            </button>
+          </div>
+          <!-- REGISTER -->
+          <div class="auth-section" id="auth-register">
+            <div class="auth-title" data-i18n="create_account">Crear una cuenta</div>
+            <div class="auth-sub" data-i18n="register_sub">Únete a VeikenGold y empieza a comprar gold de forma segura.</div>
+            <div class="auth-notice" data-i18n="register_notice">🔔 El registro se realiza a través de Discord. Únete a nuestro servidor para crear tu cuenta y comenzar a operar.</div>
+            <div class="auth-field">
+              <label class="auth-label" data-i18n="username">Nombre de usuario</label>
+              <input class="auth-input" type="text" placeholder="TuNombre" />
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" data-i18n="email">Correo electrónico</label>
+              <input class="auth-input" type="email" placeholder="email@ejemplo.com" />
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" data-i18n="password">Contraseña</label>
+              <input class="auth-input" type="password" placeholder="••••••••" />
+            </div>
+            <button class="auth-submit" data-i18n="register_btn">Crear Cuenta</button>
+            <div class="auth-divider"><span data-i18n="or">o regístrate con</span></div>
+            <button class="auth-discord-btn" onclick="window.open('https://discord.com/invite/x5Y6kDyxYD','_blank')">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.030z"/></svg>
+              <span data-i18n="discord_register">Registrarse con Discord</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
