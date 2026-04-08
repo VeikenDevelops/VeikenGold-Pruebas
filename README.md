@@ -1,2 +1,0 @@
-# VeikenGold-Pruebas
-Web
