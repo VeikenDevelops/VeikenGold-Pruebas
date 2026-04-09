@@ -541,3 +541,17 @@ let boostRate=0, boostSkill='';
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') { closeAuth(); closeLegal(); closeMobile(); closeAllPanels(); }
     });
+    // ── ACCOUNTS FILTER ──
+    function filterAccs(btn, type) {
+      // Update active button
+      document.querySelectorAll('.acc-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Show/hide cards
+      document.querySelectorAll('.acc-card').forEach(card => {
+        if (type === 'all' || card.dataset.type === type) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
