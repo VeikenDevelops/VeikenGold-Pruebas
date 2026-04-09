@@ -382,6 +382,75 @@
     .order-btn-gold:hover:not(:disabled) { background: #8a4200 !important; box-shadow: 0 4px 16px rgba(255,170,68,.25) !important; }
     .note { font-size: 11px; color: #3a4850; text-align: center; margin-top: 10px; }
 
+    /* ── ACCOUNTS ── */
+    .acc-filter-bar {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;
+    }
+    .acc-filter-btn {
+      padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border2);
+      background: var(--bg3); color: var(--muted); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all .18s; font-family: 'DM Sans', sans-serif;
+    }
+    .acc-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .acc-filter-btn.active { background: var(--accent); color: #04060f; border-color: var(--accent); font-weight: 700; }
+
+    .acc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 16px;
+    }
+    .acc-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px 18px 16px;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .acc-card:hover {
+      border-color: var(--accent); transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(77,184,255,.12);
+    }
+    .acc-card-top {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .acc-type-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: .8px;
+      padding: 3px 10px; border-radius: 6px; text-transform: uppercase;
+    }
+    .acc-badge-pure    { background: #c0281e22; color: #ff6055; border: 1px solid #c0281e55; }
+    .acc-badge-main    { background: #1a55cc22; color: #5599ff; border: 1px solid #1a55cc55; }
+    .acc-badge-zerker  { background: #7a340022; color: #ffaa44; border: 1px solid #7a340055; }
+    .acc-badge-skiller { background: #22662222; color: #4acc88; border: 1px solid #22662255; }
+    .acc-badge-ironman { background: #44444422; color: #cccccc; border: 1px solid #66666655; }
+
+    .acc-price-tag { font-family: 'Rajdhani', sans-serif; font-size: 13px; color: var(--muted); }
+    .acc-price-tag strong { font-size: 22px; font-weight: 700; color: var(--accent); }
+
+    .acc-stats-grid {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+      background: var(--bg2); border-radius: 10px; padding: 12px 8px;
+    }
+    .acc-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .acc-stat-val {
+      font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700;
+      color: var(--text); line-height: 1;
+    }
+    .acc-stat-lbl { font-size: 9px; color: var(--dim); font-weight: 500; letter-spacing: .3px; }
+
+    .acc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .acc-tag {
+      font-size: 10.5px; padding: 3px 8px; border-radius: 5px;
+      background: rgba(77,184,255,.06); border: 1px solid rgba(77,184,255,.12);
+      color: var(--muted);
+    }
+    .acc-buy-btn {
+      width: 100%; padding: 10px; border-radius: 9px; border: none;
+      background: var(--accent2); color: #fff; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background .18s, box-shadow .18s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .acc-buy-btn:hover { background: var(--accent); box-shadow: 0 4px 16px rgba(77,184,255,.3); }
+    .acc-card.hidden { display: none; }
+
     .server-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; margin-top: 8px; }
     .server-btn {
       background: #0d0d18; border: 1.5px solid var(--border); border-radius: 8px;
@@ -512,6 +581,65 @@
     .review-badge { font-size: 9px; padding: 3px 8px; border-radius: 5px; font-weight: 600; flex-shrink: 0; }
     .badge-verified { background: #0d2a0d; color: var(--green); border: 1px solid #1a4a1a; }
     .badge-trusted { background: #1a1a0d; color: #ccaa44; border: 1px solid #3a3010; }
+    /* ── PAYMENT METHODS BAND ── */
+    .pay-band {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 0 16px;
+    }
+    .pay-band-label {
+      text-align: center;
+      font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--dim);
+      margin-bottom: 14px;
+    }
+    .pay-track-wrap {
+      position: relative; overflow: hidden;
+    }
+    /* fade masks left & right */
+    .pay-fade {
+      position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2;
+      pointer-events: none;
+    }
+    .pay-fade-left  { left: 0;  background: linear-gradient(to right, var(--bg2), transparent); }
+    .pay-fade-right { right: 0; background: linear-gradient(to left,  var(--bg2), transparent); }
+
+    /* scrolling track */
+    .pay-track {
+      display: flex; align-items: center; gap: 32px;
+      width: max-content;
+      animation: pay-scroll 28s linear infinite;
+    }
+    .pay-track:hover { animation-play-state: paused; }
+
+    @keyframes pay-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .pay-item {
+      display: flex; align-items: center; justify-content: center;
+      height: 40px; min-width: 80px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 14px;
+      flex-shrink: 0;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .pay-item:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(77,184,255,.15);
+    }
+    .pay-item img {
+      height: 24px; width: auto; max-width: 90px;
+      object-fit: contain; display: block;
+      filter: brightness(0.85) saturate(0.8);
+      transition: filter .2s;
+    }
+    .pay-item:hover img { filter: brightness(1) saturate(1); }
+
     .footer-bottom { border-top: 1px solid #141420; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     .footer-copyright { font-size: 11px; color: #2a2a3a; }
     .footer-tagline { font-size: 11px; color: #2a2a3a; }
