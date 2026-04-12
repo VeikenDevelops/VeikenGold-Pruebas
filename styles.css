@@ -11,7 +11,7 @@
       --gold: #ffaa44;
       --green: #4acc88;
       --text: #e8e6e0;
-      --text2: #c8c6d4;
+      --text2: #e8e6e0;
       --muted: #7a788a;
       --dim: #4a4860;
       --radius: 10px;
@@ -49,7 +49,8 @@
       white-space: nowrap; height: 100%; font-weight: 500;
     }
     .nav-btn:hover, .nav-btn.open { color: var(--accent); border-bottom-color: var(--accent); }
-    .nav-btn svg { width: 8px; height: 8px; fill: none; stroke: currentColor; stroke-width: 2.5; transition: transform .2s; flex-shrink: 0; }
+    .nav-btn svg { width: 10px; height: 10px; fill: none; stroke: var(--text2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s, stroke .15s; flex-shrink: 0; }
+    .nav-btn:hover svg, .nav-btn.open svg { stroke: var(--accent); }
     .nav-btn.open svg { transform: rotate(180deg); }
     .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
     .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; background: none; border: none; }
@@ -207,7 +208,7 @@
     }
     .gcard {
       position: relative; border-radius: 16px; overflow: hidden;
-      cursor: pointer; height: 200px;
+      cursor: pointer; height: 220px;
       border: 1px solid rgba(255,255,255,0.07);
       transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s, border-color .25s;
     }
@@ -262,14 +263,8 @@
       font-size: 18px; font-weight: 700; color: #fff;
       line-height: 1.15; text-shadow: 0 1px 6px rgba(0,0,0,.7);
     }
-    .gcard-sub {
-      font-size: 11px; color: rgba(200,200,220,0.7);
-      margin-top: 3px; font-weight: 400;
-    }
-    .gcard-price {
-      margin-top: 7px;
-      font-size: 12px; color: rgba(180,220,255,0.75);
-    }
+    .gcard-sub { display: none; }
+    .gcard-price { display: none; }
     .gcard-price strong {
       font-family: 'Rajdhani', sans-serif;
       font-size: 17px; font-weight: 700;
@@ -286,23 +281,28 @@
 
     /* Responsive gcard */
     @media (max-width: 900px) { .gcard-grid { grid-template-columns: repeat(2,1fr); gap:12px; padding: 0 20px; } }
-    @media (max-width: 520px) { .gcard-grid { grid-template-columns: 1fr; } .gcard { height: 170px; } }
+    @media (max-width: 520px) { .gcard-grid { grid-template-columns: 1fr; } .gcard { height: 200px; } }
 
 
 
     .svc-header {
       background: linear-gradient(135deg, #060c1a, #0b1226);
-      padding: 30px 24px; border-bottom: 1px solid #1a2a3a;
-      display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+      padding: 28px 24px; border-bottom: 1px solid #1a2a3a;
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px; flex-wrap: wrap; text-align: center; position: relative;
     }
+    .svc-header > div:not(.svc-icon) { display: flex; flex-direction: column; align-items: center; }
     .svc-icon { font-size: 44px; }
     .svc-title { font-family: 'Rajdhani', sans-serif; font-size: 27px; font-weight: 700; color: #f0eed8; }
     .svc-desc { font-size: 13px; color: #6a6880; margin-top: 4px; }
     .back-btn {
       background: var(--bg3); border: 1px solid var(--border2); color: var(--muted);
-      font-size: 12px; padding: 8px 14px; border-radius: 7px; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; margin-left: auto; flex-shrink: 0;
+      font-size: 12px; padding: 8px 16px; border-radius: 7px; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; flex-shrink: 0;
       transition: color .15s, border-color .15s, background .15s;
+      /* Hidden from header — repositioned next to calc-card */
+      position: absolute; right: 24px; top: 50%; transform: translateY(-50%);
+      display: none;
     }
     .back-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-glow); }
 
@@ -316,7 +316,58 @@
     .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
     .tab:hover:not(.active) { color: var(--text2); }
 
-    .calc-area { padding: 28px 24px; }
+    /* ── Inner tabs inside calc-card ── */
+    .inner-tabs {
+      display: flex;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .inner-tab {
+      flex: 1;
+      padding: 11px 0;
+      font-size: 13px; font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      background: none; border: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: color .15s, background .15s;
+      white-space: nowrap;
+    }
+    .inner-tab:hover:not(.active) { color: var(--text2); background: rgba(255,255,255,0.03); }
+    .inner-tab.active {
+      color: var(--accent);
+      background: rgba(77,184,255,0.08);
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .calc-area { padding: 28px 24px; position: relative; }
+
+    /* Back button — floating to the left of the calc-card */
+    .calc-area .back-btn {
+      display: block;
+      position: absolute;
+      /* center of calc-card is at 50%, card is 520px wide, so left edge ≈ calc(50% - 260px) */
+      left: calc(50% - 400px);
+      top: 52px; /* aligned with top of card */
+      transform: none;
+      right: auto;
+      font-size: 13px;
+      padding: 10px 18px;
+      border-radius: 9px;
+      white-space: nowrap;
+    }
+
+    /* Membresías y Boost tienen grids anchos — botón va arriba izquierda en flujo normal */
+    #view-mem .calc-area .back-btn,
+    #view-boost .calc-area .back-btn {
+      position: static;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
     .calc-card {
       background: var(--bg3); border: 1px solid #1e2a3a;
       border-radius: var(--radius-lg); padding: 26px; max-width: 520px; margin: 0 auto;
@@ -660,7 +711,9 @@
       .svc-header { padding: 22px 16px; gap: 12px; }
       .svc-icon { font-size: 34px; }
       .svc-title { font-size: 22px; }
-      .back-btn { margin-left: 0; width: 100%; text-align: center; }
+      /* On mobile: show back-btn inside header, hide the floating one */
+      .svc-header .back-btn { display: block; position: static; transform: none; width: auto; margin-top: 4px; }
+      .calc-area .back-btn { display: none; }
       .tabs { padding: 0 16px; overflow-x: auto; }
       .tab { padding: 12px 16px; font-size: 12.5px; }
       .skill-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
@@ -1058,4 +1111,84 @@
     }
     @media (max-width: 480px) {
       .footer-main { grid-template-columns: 1fr; }
+    }
+    /* ══════════════════════════════════════════
+       BOOST v2 — ChickenGold style
+    ══════════════════════════════════════════ */
+    .boost-shell { padding: 24px; max-width: 1100px; margin: 0 auto; }
+    .bsvc-tabs {
+      display: flex; gap: 4px; background: var(--bg2);
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 6px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .bsvc-tab {
+      flex: 1; min-width: 110px; padding: 9px 14px; border-radius: 9px;
+      border: none; background: none; color: var(--muted);
+      font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+      cursor: pointer; transition: all .15s; white-space: nowrap; text-align: center;
+    }
+    .bsvc-tab:hover { color: var(--text2); background: rgba(255,255,255,.04); }
+    .bsvc-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 12px rgba(77,184,255,.3); }
+    .bsvc-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+    .bsvc-search-wrap {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 8px 14px; flex: 1; min-width: 180px;
+    }
+    .bsvc-search { background: none; border: none; outline: none; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; width: 100%; }
+    .bsvc-search::placeholder { color: var(--dim); }
+    .bsvc-filter-wrap { display: flex; gap: 6px; flex-wrap: wrap; }
+    .bsvc-filter {
+      padding: 7px 12px; border-radius: var(--radius); border: 1px solid var(--border);
+      background: var(--bg2); color: var(--muted); font-family: 'DM Sans', sans-serif;
+      font-size: 11.5px; cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .bsvc-filter.active { border-color: var(--accent); color: var(--accent); background: rgba(77,184,255,.07); }
+    .bsvc-filter:hover:not(.active) { color: var(--text2); border-color: var(--border2); }
+    .bsvc-table-wrap {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden;
+    }
+    .bsvc-table { width: 100%; border-collapse: collapse; }
+    .bsvc-table thead tr { background: var(--bg3); border-bottom: 1px solid var(--border); }
+    .bsvc-table th {
+      padding: 11px 14px; text-align: left; font-size: 10.5px; font-weight: 700;
+      color: var(--muted); letter-spacing: .6px; text-transform: uppercase; white-space: nowrap;
+    }
+    .bsvc-table th.sortable { cursor: pointer; user-select: none; }
+    .bsvc-table th.sortable:hover { color: var(--text2); }
+    .sort-arrow { color: var(--dim); font-size: 10px; margin-left: 3px; }
+    .bsvc-table tbody tr { border-bottom: 1px solid rgba(30,30,46,.9); transition: background .12s; cursor: pointer; }
+    .bsvc-table tbody tr:last-child { border-bottom: none; }
+    .bsvc-table tbody tr:hover { background: rgba(77,184,255,.04); }
+    .bsvc-table tbody tr.row-selected { background: rgba(77,184,255,.07); }
+    .bsvc-table td { padding: 10px 14px; font-size: 13px; color: var(--text2); vertical-align: middle; }
+    .bsvc-cb { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+    .bsvc-name { font-weight: 500; color: var(--text); font-size: 13px; }
+    .bsvc-method { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .bsvc-price { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--gold); }
+    .bsvc-detail { font-size: 11.5px; color: var(--muted); }
+    .bsvc-note { font-size: 11px; color: var(--dim); max-width: 240px; line-height: 1.4; }
+    .bsvc-badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: .4px; }
+    .bsvc-badge-diary { background: rgba(160,120,255,.12); color: #a47fff; }
+    .bsvc-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg2); border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      padding: 14px 18px; flex-wrap: wrap; gap: 12px;
+    }
+    .bsvc-footer-left { display: flex; align-items: center; gap: 12px; }
+    .bsvc-footer-right { display: flex; align-items: center; gap: 14px; }
+    .bsvc-clear-btn {
+      padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
+      background: none; color: var(--muted); font-size: 12px; cursor: pointer; transition: all .15s;
+    }
+    .bsvc-clear-btn:hover { border-color: #ff6b6b; color: #ff6b6b; }
+    .bsvc-total-label { font-size: 12px; color: var(--muted); }
+    .bsvc-total-val { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); }
+    @media (max-width: 700px) {
+      .bsvc-tab { font-size: 11px; padding: 7px 9px; min-width: 80px; }
+      .bsvc-table th, .bsvc-table td { padding: 8px 10px; font-size: 12px; }
+      .boost-shell { padding: 12px; }
+      .bsvc-footer { flex-direction: column; align-items: flex-start; }
     }
