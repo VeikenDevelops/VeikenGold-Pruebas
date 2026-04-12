@@ -1192,3 +1192,59 @@
       .boost-shell { padding: 12px; }
       .bsvc-footer { flex-direction: column; align-items: flex-start; }
     }
+    /* ══════════════════════════════════════════
+       ADMIN PANEL STYLES
+    ══════════════════════════════════════════ */
+    .admin-lbl {
+      font-size: 11px; color: var(--muted); text-transform: uppercase;
+      letter-spacing: .7px; display: block; margin-bottom: 7px; font-weight: 600;
+    }
+    .admin-inp {
+      width: 100%; background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 9px; padding: 10px 13px; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;
+      box-sizing: border-box; transition: border-color .15s;
+    }
+    .admin-inp:focus { border-color: var(--accent); }
+    .admin-inp option { background: var(--bg3); }
+
+    /* Account card image area */
+    .acc-card-img {
+      width: 100%; height: 140px; object-fit: cover;
+      border-radius: 10px; display: block; margin-bottom: 2px;
+      background: var(--bg2);
+    }
+    .acc-card-title {
+      font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px;
+    }
+    .acc-card-subtitle {
+      font-size: 11px; color: var(--muted); margin-bottom: 10px; line-height: 1.4;
+    }
+
+    /* Admin list items */
+    .admin-acc-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 9px;
+      background: var(--bg2); border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .admin-acc-row-info { flex: 1; min-width: 0; }
+    .admin-acc-row-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-acc-row-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .admin-del-btn {
+      background: rgba(255,96,85,.1); border: 1px solid rgba(255,96,85,.25);
+      color: #ff6055; border-radius: 7px; padding: 6px 12px;
+      font-size: 12px; cursor: pointer; flex-shrink: 0; font-family: 'DM Sans', sans-serif;
+      transition: background .15s;
+    }
+    .admin-del-btn:hover { background: rgba(255,96,85,.22); }
+
+    .acc-card-img-wrap {
+      width: 100%; height: 140px; border-radius: 10px; overflow: hidden;
+      background: var(--bg2); margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .acc-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .acc-card-img-placeholder {
+      font-size: 32px; color: var(--dim);
+    }
