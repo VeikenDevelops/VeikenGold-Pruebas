@@ -39,7 +39,7 @@ let boostRate=0, boostSkill='';
       bDiary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZvP2Rm-Og5oX8dR4NZcCaMu_7a_2azwE7THM8SlYkeYFIpVO3XTZ5uCxybkwFwx2njICn13NjdDWS/pub?gid=21511996&single=true&output=csv',
       bCapes: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZvP2Rm-Og5oX8dR4NZcCaMu_7a_2azwE7THM8SlYkeYFIpVO3XTZ5uCxybkwFwx2njICn13NjdDWS/pub?gid=2031426521&single=true&output=csv',
       bCA:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZvP2Rm-Og5oX8dR4NZcCaMu_7a_2azwE7THM8SlYkeYFIpVO3XTZ5uCxybkwFwx2njICn13NjdDWS/pub?gid=1795077270&single=true&output=csv',
-      accounts: '', // ← Pega aquí la URL CSV de tu pestaña "Accounts"
+      // accounts: gestionado exclusivamente desde admin-dashboard.html (localStorage)
     };
 
     function parseCSV(text) {
@@ -1262,101 +1262,75 @@ let boostRate=0, boostSkill='';
     });
     // ── ACCOUNTS FILTER ──
     function filterAccs(btn, type) {
-      // Update active button
       document.querySelectorAll('.acc-filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // Show/hide cards
-      document.querySelectorAll('.acc-card').forEach(card => {
-        if (type === 'all' || card.dataset.type === type) {
-          card.classList.remove('hidden');
-        } else {
-          card.classList.add('hidden');
-        }
-      });
+      renderAccountGrid(type);
     }
     // ── Initialize with English on page load ──
     document.addEventListener('DOMContentLoaded', function() {
       setLang('en');
       loadAllPrices();
-      loadAccountsFromSheet();
+      loadOSRSAccounts();
       setupAdminAccess();
     });
 
     // ══════════════════════════════════════════
-    // ACCOUNTS — Dynamic loading from Google Sheet
+    // OSRS ACCOUNTS — Fuente única: dashboard (localStorage)
+    // El Sheet NO se usa para cuentas. Todo se gestiona desde admin-dashboard.html
     // ══════════════════════════════════════════
 
-    // ⬇️ REEMPLAZA ESTA URL con tu Sheet publicado como CSV (pestaña Accounts)
-    // Instrucciones en el panel Admin → pestaña "Guía Sheet"
-    SHEET_URLS.accounts = '';
-
-    // Datos de cuentas en memoria (fallback si no hay Sheet configurado)
+    const VG_DB_KEY = 'vg_accounts'; // misma clave que usa el dashboard
     let ACCOUNTS_DATA = [];
     let accCurrentFilter = 'all';
 
-    async function loadAccountsFromSheet() {
-      const url = SHEET_URLS.accounts;
-      if (!url || url.trim() === '') {
-        // No Sheet configurado — mostrar mensaje de bienvenida
-        showAccountsPlaceholder();
-        return;
-      }
+    function loadOSRSAccounts() {
       try {
-        const txt = await fetchSheet(url);
-        if (!txt) throw new Error('empty');
-        const rows = parseCSV(txt);
-        const headers = rows[0].map(h => h.toLowerCase().trim());
-        ACCOUNTS_DATA = rows.slice(1).map(r => {
-          const obj = {};
-          headers.forEach((h, i) => obj[h] = (r[i] || '').trim());
-          return obj;
-        }).filter(r => r.title && String(r.active||'').toLowerCase() !== 'false');
-        console.log('[ACCOUNTS] Loaded:', ACCOUNTS_DATA.length, 'accounts');
-        renderAccountGrid('all');
+        const raw = localStorage.getItem(VG_DB_KEY);
+        const all = raw ? JSON.parse(raw) : [];
+        // Solo mostrar cuentas en estado "stock" en la tienda pública
+        ACCOUNTS_DATA = all.filter(a => a.title && a.status === 'stock');
       } catch(e) {
-        console.error('[ACCOUNTS] Failed to load sheet:', e);
-        showAccountsPlaceholder();
+        ACCOUNTS_DATA = [];
       }
+      renderAccountGrid('all');
     }
 
-    function showAccountsPlaceholder() {
-      document.getElementById('acc-loading').style.display = 'none';
-      document.getElementById('acc-grid').style.display = 'none';
-      const empty = document.getElementById('acc-empty');
-      empty.style.display = 'block';
-      empty.innerHTML = `
-        <div style="font-size:36px;margin-bottom:12px;">🎮</div>
-        <div style="font-size:14px;color:var(--text2);font-weight:600;">No hay cuentas configuradas aún</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:6px;">Accede al panel admin para agregar cuentas</div>
-      `;
-    }
+    // Escuchar cambios del dashboard en tiempo real (mismo navegador, distinta pestaña)
+    window.addEventListener('storage', function(e) {
+      if (e.key === VG_DB_KEY) {
+        loadOSRSAccounts();
+      }
+    });
 
     function renderAccountGrid(filter) {
       accCurrentFilter = filter;
-      const grid = document.getElementById('acc-grid');
+      const grid    = document.getElementById('acc-grid');
       const loading = document.getElementById('acc-loading');
-      const empty = document.getElementById('acc-empty');
+      const empty   = document.getElementById('acc-empty');
 
-      loading.style.display = 'none';
+      if (loading) loading.style.display = 'none';
 
       const data = filter === 'all'
         ? ACCOUNTS_DATA
-        : ACCOUNTS_DATA.filter(a => (a.type||'').toLowerCase() === filter);
+        : ACCOUNTS_DATA.filter(a => (a.type || '').toLowerCase() === filter);
 
       if (!data.length) {
-        grid.style.display = 'none';
-        empty.style.display = 'block';
-        empty.innerHTML = `
-          <div style="font-size:36px;margin-bottom:12px;">🔍</div>
-          <div style="font-size:14px;color:var(--text2);font-weight:600;">No hay cuentas en esta categoría</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:6px;">Prueba otro filtro o vuelve pronto</div>
-        `;
+        if (grid)  { grid.style.display = 'none'; grid.innerHTML = ''; }
+        if (empty) {
+          empty.style.display = 'block';
+          empty.innerHTML = ACCOUNTS_DATA.length === 0
+            ? `<div style="font-size:36px;margin-bottom:12px;">🎮</div>
+               <div style="font-size:14px;color:var(--text2);font-weight:600;">No hay cuentas disponibles aún</div>
+               <div style="font-size:12px;color:var(--muted);margin-top:6px;">Vuelve pronto o contáctanos por Discord</div>`
+            : `<div style="font-size:36px;margin-bottom:12px;">🔍</div>
+               <div style="font-size:14px;color:var(--text2);font-weight:600;">No hay cuentas en esta categoría</div>
+               <div style="font-size:12px;color:var(--muted);margin-top:6px;">Prueba otro filtro</div>`;
+        }
         return;
       }
 
-      empty.style.display = 'none';
-      grid.style.display = 'grid';
-      grid.innerHTML = data.map((acc, idx) => buildAccCard(acc, idx)).join('');
+      if (empty) empty.style.display = 'none';
+      if (grid)  { grid.style.display = 'grid'; grid.innerHTML = data.map((acc, idx) => buildAccCard(acc, idx)).join(''); }
     }
 
     function buildAccCard(acc, idx) {
@@ -1365,44 +1339,173 @@ let boostRate=0, boostSkill='';
         pure: 'acc-badge-pure', main: 'acc-badge-main', zerker: 'acc-badge-zerker',
         skiller: 'acc-badge-skiller', ironman: 'acc-badge-ironman'
       }[type] || 'acc-badge-main';
-      const typeLabel = type.toUpperCase();
+      const cardId = 'acc-card-' + idx;
 
-      // Stats: "Atk:60,Str:99,Def:1,Rng:75,Mage:70,CB:52"
+      // Stats — formato "Atk:60,Str:99,..."
       const stats = (acc.stats || '').split(',').map(s => {
         const [lbl, val] = s.trim().split(':');
         return lbl && val ? `<div class="acc-stat"><span class="acc-stat-val">${val.trim()}</span><span class="acc-stat-lbl">${lbl.trim()}</span></div>` : '';
       }).filter(Boolean).join('');
 
-      // Tags: "Quest Cape ✓,Fire Cape ✓"
+      // Tags — formato "Quest Cape ✓, Fire Cape ✓"
       const tags = (acc.tags || '').split(',').map(t =>
         t.trim() ? `<span class="acc-tag">${t.trim()}</span>` : ''
       ).filter(Boolean).join('');
 
-      // Image
-      const imgHtml = acc.image
-        ? `<div class="acc-card-img-wrap"><img src="${acc.image}" alt="${acc.title}" onerror="this.parentElement.innerHTML='<div class=acc-card-img-placeholder>🎮</div>'" /></div>`
-        : '';
+      // Imágenes — el dashboard guarda array en acc.images
+      let images = [];
+      if (Array.isArray(acc.images) && acc.images.length > 0) {
+        images = acc.images.filter(Boolean);
+      } else if (typeof acc.image === 'string' && acc.image) {
+        images = acc.image.split('|').map(u => u.trim()).filter(Boolean);
+      }
+
+      let imgHtml = '';
+      if (images.length === 0) {
+        imgHtml = `<div class="acc-carousel"><div class="acc-carousel-placeholder">🎮</div></div>`;
+      } else if (images.length === 1) {
+        imgHtml = `<div class="acc-carousel" id="${cardId}-carousel" data-imgs='${JSON.stringify(images)}' data-idx="0">
+          <img class="acc-carousel-img" src="${images[0]}" alt="${acc.title}"
+            onclick="openLightbox(${JSON.stringify(images)},0)"
+            onerror="this.parentElement.innerHTML='<div class=acc-carousel-placeholder>🎮</div>'" />
+          <div class="acc-carousel-zoom">🔍</div>
+        </div>`;
+      } else {
+        const dots = images.map((_, i) =>
+          `<span class="acc-dot${i===0?' active':''}" onclick="setCarouselImg('${cardId}',${i});event.stopPropagation()"></span>`
+        ).join('');
+        imgHtml = `<div class="acc-carousel" id="${cardId}-carousel" data-imgs='${JSON.stringify(images)}' data-idx="0">
+          <img class="acc-carousel-img" src="${images[0]}" alt="${acc.title}"
+            onclick="openLightbox(JSON.parse(document.getElementById('${cardId}-carousel').dataset.imgs),parseInt(document.getElementById('${cardId}-carousel').dataset.idx))"
+            onerror="this.src=''" />
+          <button class="acc-carousel-btn acc-carousel-prev" onclick="stepCarousel('${cardId}',-1);event.stopPropagation()">‹</button>
+          <button class="acc-carousel-btn acc-carousel-next" onclick="stepCarousel('${cardId}',1);event.stopPropagation()">›</button>
+          <div class="acc-carousel-dots">${dots}</div>
+          <div class="acc-carousel-count"><span id="${cardId}-cur">1</span>/${images.length}</div>
+          <div class="acc-carousel-zoom">🔍</div>
+        </div>`;
+      }
 
       const price = parseFloat(acc.price || 0);
       const priceHtml = price > 0
         ? `<span class="acc-price-tag">$<strong>${price.toFixed(2)}</strong></span>`
         : `<span class="acc-price-tag" style="font-size:11px;color:var(--muted);">Consultar</span>`;
 
-      const titleHtml = acc.title ? `<div class="acc-card-title">${acc.title}</div>` : '';
-      const subtitleHtml = acc.subtitle ? `<div class="acc-card-subtitle">${acc.subtitle}</div>` : '';
-
-      return `<div class="acc-card" data-type="${type}">
+      return `<div class="acc-card" data-type="${type}" id="${cardId}">
         ${imgHtml}
         <div class="acc-card-top">
-          <span class="acc-type-badge ${badgeClass}">${typeLabel}</span>
+          <span class="acc-type-badge ${badgeClass}">${type.toUpperCase()}</span>
           ${priceHtml}
         </div>
-        ${titleHtml}${subtitleHtml}
+        ${acc.title    ? `<div class="acc-card-title">${acc.title}</div>` : ''}
+        ${acc.subtitle ? `<div class="acc-card-subtitle">${acc.subtitle}</div>` : ''}
         ${stats ? `<div class="acc-stats-grid">${stats}</div>` : ''}
-        ${tags ? `<div class="acc-tags">${tags}</div>` : ''}
+        ${tags  ? `<div class="acc-tags">${tags}</div>` : ''}
         <button class="acc-buy-btn" onclick="openModal()">Consultar precio</button>
       </div>`;
     }
+
+    // ── Carousel controls ──
+    function stepCarousel(cardId, dir) {
+      const el = document.getElementById(cardId + '-carousel');
+      if (!el) return;
+      const imgs = JSON.parse(el.dataset.imgs);
+      let idx = parseInt(el.dataset.idx) + dir;
+      if (idx < 0) idx = imgs.length - 1;
+      if (idx >= imgs.length) idx = 0;
+      setCarouselImg(cardId, idx);
+    }
+
+    function setCarouselImg(cardId, idx) {
+      const el = document.getElementById(cardId + '-carousel');
+      if (!el) return;
+      const imgs = JSON.parse(el.dataset.imgs);
+      idx = Math.max(0, Math.min(idx, imgs.length - 1));
+      el.dataset.idx = idx;
+
+      const img = el.querySelector('.acc-carousel-img');
+      if (img) {
+        img.style.opacity = '0';
+        setTimeout(() => { img.src = imgs[idx]; img.style.opacity = '1'; }, 120);
+      }
+
+      // dots
+      el.querySelectorAll('.acc-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+
+      // counter
+      const cur = document.getElementById(cardId + '-cur');
+      if (cur) cur.textContent = idx + 1;
+    }
+
+    // ── Lightbox ──
+    let _lbImgs = [], _lbIdx = 0;
+
+    function openLightbox(imgs, idx) {
+      // Support string or array
+      if (typeof imgs === 'string') {
+        try { imgs = JSON.parse(imgs); } catch(e) { imgs = [imgs]; }
+      }
+      _lbImgs = imgs;
+      _lbIdx = idx || 0;
+
+      let lb = document.getElementById('acc-lightbox');
+      if (!lb) {
+        lb = document.createElement('div');
+        lb.id = 'acc-lightbox';
+        lb.innerHTML = `
+          <div class="lb-overlay" onclick="closeLightbox()"></div>
+          <div class="lb-box">
+            <button class="lb-close" onclick="closeLightbox()">✕</button>
+            <button class="lb-nav lb-prev" onclick="stepLightbox(-1)">‹</button>
+            <img class="lb-img" id="lb-main-img" src="" alt="" />
+            <button class="lb-nav lb-next" onclick="stepLightbox(1)">›</button>
+            <div class="lb-footer">
+              <span id="lb-counter"></span>
+            </div>
+            <div class="lb-dots-row" id="lb-dots"></div>
+          </div>`;
+        document.body.appendChild(lb);
+      }
+
+      document.body.style.overflow = 'hidden';
+      lb.style.display = 'flex';
+      renderLightbox();
+    }
+
+    function renderLightbox() {
+      const img = document.getElementById('lb-main-img');
+      const counter = document.getElementById('lb-counter');
+      const dots = document.getElementById('lb-dots');
+      const prev = document.querySelector('.lb-prev');
+      const next = document.querySelector('.lb-next');
+
+      if (img) { img.style.opacity = '0'; img.src = _lbImgs[_lbIdx]; img.onload = () => { img.style.opacity = '1'; }; }
+      if (counter) counter.textContent = _lbImgs.length > 1 ? `${_lbIdx + 1} / ${_lbImgs.length}` : '';
+      if (dots) dots.innerHTML = _lbImgs.length > 1
+        ? _lbImgs.map((_, i) => `<span class="lb-dot${i===_lbIdx?' active':''}" onclick="stepLightbox(${i - _lbIdx})"></span>`).join('')
+        : '';
+      if (prev) prev.style.display = _lbImgs.length > 1 ? 'flex' : 'none';
+      if (next) next.style.display = _lbImgs.length > 1 ? 'flex' : 'none';
+    }
+
+    function stepLightbox(dir) {
+      _lbIdx = (_lbIdx + dir + _lbImgs.length) % _lbImgs.length;
+      renderLightbox();
+    }
+
+    function closeLightbox() {
+      const lb = document.getElementById('acc-lightbox');
+      if (lb) lb.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', e => {
+      const lb = document.getElementById('acc-lightbox');
+      if (!lb || lb.style.display === 'none') return;
+      if (e.key === 'ArrowRight') stepLightbox(1);
+      if (e.key === 'ArrowLeft')  stepLightbox(-1);
+      if (e.key === 'Escape')     closeLightbox();
+    });
 
     // Override filterAccs to use dynamic data
     function filterAccs(btn, type) {
@@ -1416,7 +1519,7 @@ let boostRate=0, boostSkill='';
     // ══════════════════════════════════════════
 
     // ⬇️ CAMBIA ESTA CONTRASEÑA antes de subir a producción
-    const ADMIN_PASSWORD = 'veikengold2024';
+    // Acceso al dashboard: triple-click en el logo → abre admin-dashboard.html
 
     let adminLogoClickCount = 0;
     let adminLogoClickTimer = null;
@@ -1438,152 +1541,11 @@ let boostRate=0, boostSkill='';
     }
 
     function openAdminPanel() {
-      document.getElementById('admin-modal').style.display = 'block';
-      document.body.style.overflow = 'hidden';
-      const passInput = document.getElementById('admin-pass-input');
-      if (passInput) setTimeout(() => passInput.focus(), 100);
-    }
-
-    function closeAdminPanel() {
-      document.getElementById('admin-modal').style.display = 'none';
-      document.body.style.overflow = '';
-      document.getElementById('admin-pass-input').value = '';
-      document.getElementById('admin-pass-error').style.display = 'none';
-      document.getElementById('admin-login-screen').style.display = 'block';
-      document.getElementById('admin-panel-screen').style.display = 'none';
-    }
-
-    function checkAdminPass() {
-      const val = document.getElementById('admin-pass-input').value;
-      if (val === ADMIN_PASSWORD) {
-        document.getElementById('admin-login-screen').style.display = 'none';
-        document.getElementById('admin-panel-screen').style.display = 'block';
-        document.getElementById('admin-pass-error').style.display = 'none';
-        switchAdminTab('add');
-        loadAdminAccountList();
-      } else {
-        document.getElementById('admin-pass-error').style.display = 'block';
-        document.getElementById('admin-pass-input').value = '';
-        document.getElementById('admin-pass-input').focus();
-      }
-    }
-
-    function switchAdminTab(tab) {
-      ['add','list','guide'].forEach(t => {
-        const sec = document.getElementById('admin-section-'+t);
-        const btn = document.getElementById('admin-tab-'+t);
-        if (!sec || !btn) return;
-        const isActive = t === tab;
-        sec.style.display = isActive ? 'block' : 'none';
-        btn.style.background = isActive ? 'var(--accent2)' : 'none';
-        btn.style.color = isActive ? '#fff' : 'var(--muted)';
-      });
-    }
-
-    function previewAdminCard() {
-      const acc = getAdminFormData();
-      const wrap = document.getElementById('admin-preview-wrap');
-      const card = document.getElementById('admin-preview-card');
-      wrap.style.display = 'block';
-      card.innerHTML = buildAccCard(acc, 0);
-    }
-
-    function getAdminFormData() {
-      return {
-        title:    (document.getElementById('af-title')?.value || '').trim(),
-        subtitle: (document.getElementById('af-subtitle')?.value || '').trim(),
-        type:     (document.getElementById('af-type')?.value || 'main'),
-        price:    (document.getElementById('af-price')?.value || '0'),
-        stats:    (document.getElementById('af-stats')?.value || '').trim(),
-        tags:     (document.getElementById('af-tags')?.value || '').trim(),
-        image:    (document.getElementById('af-img')?.value || '').trim(),
-        active:   'TRUE'
-      };
-    }
-
-    function saveAccountToSheet() {
-      const acc = getAdminFormData();
-      const msg = document.getElementById('admin-save-msg');
-
-      if (!acc.title) {
-        msg.style.display = 'block';
-        msg.style.background = 'rgba(255,96,85,.12)';
-        msg.style.color = '#ff6055';
-        msg.textContent = '⚠️ El título es obligatorio';
-        return;
-      }
-
-      const url = SHEET_URLS.accounts;
-      if (!url || url.trim() === '') {
-        // No hay sheet configurado — guardar localmente
-        acc.active = 'TRUE';
-        ACCOUNTS_DATA.push(acc);
-        renderAccountGrid(accCurrentFilter);
-
-        msg.style.display = 'block';
-        msg.style.background = 'rgba(74,204,136,.12)';
-        msg.style.color = '#4acc88';
-        msg.innerHTML = '✅ Cuenta agregada localmente.<br><small style="color:var(--muted)">Para guardar permanentemente, configura el Google Sheet (ver Guía).</small>';
-
-        // Clear form
-        ['af-title','af-subtitle','af-price','af-stats','af-tags','af-img'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.value = '';
-        });
-        document.getElementById('admin-preview-wrap').style.display = 'none';
-        return;
-      }
-
-      // Si hay Sheet configurado
-      const sheetMsg = `✅ Cuenta guardada localmente.\n\n📋 Para que sea permanente, ve al Sheet y agrega manualmente esta fila:\n\nTítulo: ${acc.title}\nSubtítulo: ${acc.subtitle}\nTipo: ${acc.type}\nPrecio: ${acc.price}\nStats: ${acc.stats}\nTags: ${acc.tags}\nImagen: ${acc.image}\nActive: TRUE`;
-
-      ACCOUNTS_DATA.push(acc);
-      renderAccountGrid(accCurrentFilter);
-
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(74,204,136,.12)';
-      msg.style.color = '#4acc88';
-      msg.innerHTML = `✅ Cuenta agregada al listado.<br><small style="color:var(--muted)">Recuerda agregarla también en el Sheet para que sea permanente.</small>`;
-
-      ['af-title','af-subtitle','af-price','af-stats','af-tags','af-img'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      document.getElementById('admin-preview-wrap').style.display = 'none';
-    }
-
-    function loadAdminAccountList() {
-      const list = document.getElementById('admin-acc-list');
-      if (!list) return;
-
-      if (!ACCOUNTS_DATA.length) {
-        list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px;">No hay cuentas cargadas aún</div>';
-        return;
-      }
-
-      list.innerHTML = ACCOUNTS_DATA.map((acc, idx) => {
-        const type = (acc.type||'main').toUpperCase();
-        const price = parseFloat(acc.price||0) > 0 ? `$${parseFloat(acc.price).toFixed(2)}` : 'Consultar';
-        return `<div class="admin-acc-row">
-          ${acc.image ? `<img src="${acc.image}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'" />` : `<div style="width:44px;height:44px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;">🎮</div>`}
-          <div class="admin-acc-row-info">
-            <div class="admin-acc-row-name">${acc.title || 'Sin título'}</div>
-            <div class="admin-acc-row-meta">${type} · ${price}</div>
-          </div>
-          <button class="admin-del-btn" onclick="deleteAdminAccount(${idx})">🗑 Eliminar</button>
-        </div>`;
-      }).join('');
-    }
-
-    function deleteAdminAccount(idx) {
-      if (!confirm(`¿Eliminar "${ACCOUNTS_DATA[idx]?.title}"? Esta acción solo aplica a la sesión actual. Recuerda eliminarlo del Sheet también.`)) return;
-      ACCOUNTS_DATA.splice(idx, 1);
-      renderAccountGrid(accCurrentFilter);
-      loadAdminAccountList();
+      window.open('admin-dashboard.html', '_blank');
     }
 
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
-        closeAdminPanel();
+        closeLightbox();
       }
     });
