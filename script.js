@@ -18,10 +18,12 @@ let boostRate=0, boostSkill='';
 
     // ── MASTER PRICE OBJECT — filled from Google Sheets ──
     const PRICES = {
-      rs:      { buy: 0.38, sell: 0.30 },
-      wowc:    { buy: 0.010, sell: 0.020 },
-      wowr_us: { buy: 3.50, sell: 4.50 },
-      wowr_eu: { buy: 2.90, sell: 4.50 },
+      // rs.buy  = A2 = lo que pagamos al proveedor ($0.18) → Sell Gold tab (cliente nos vende)
+      // rs.sell = A5 = lo que cobra el cliente    ($0.22) → Buy Gold tab  (cliente nos compra)
+      rs:      { buy: 0.18, sell: 0.22 },
+      wowc:    { buy: 0.48, sell: 0.60 },
+      wowr_us: { buy: 0.65, sell: 0.82 },
+      wowr_eu: { buy: 0.65, sell: 0.82 },
       mem:     { wow_gt: 22, osrs_bond: 3.5, wow_ficha: 16 },
       rsps:    {}
     };
@@ -39,7 +41,7 @@ let boostRate=0, boostSkill='';
       bDiary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZvP2Rm-Og5oX8dR4NZcCaMu_7a_2azwE7THM8SlYkeYFIpVO3XTZ5uCxybkwFwx2njICn13NjdDWS/pub?gid=21511996&single=true&output=csv',
       bCapes: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZvP2Rm-Og5oX8dR4NZcCaMu_7a_2azwE7THM8SlYkeYFIpVO3XTZ5uCxybkwFwx2njICn13NjdDWS/pub?gid=2031426521&single=true&output=csv',
       bCA:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZvP2Rm-Og5oX8dR4NZcCaMu_7a_2azwE7THM8SlYkeYFIpVO3XTZ5uCxybkwFwx2njICn13NjdDWS/pub?gid=1795077270&single=true&output=csv',
-      // accounts: gestionado exclusivamente desde admin-dashboard.html (localStorage)
+      accounts: '', // ← Pega aquí la URL CSV de tu pestaña "Accounts"
     };
 
     function parseCSV(text) {
@@ -299,64 +301,26 @@ let boostRate=0, boostSkill='';
       // ── RS ──
       const rsBuyRate  = document.getElementById('rs-buy-rate');
       const rsSellRate = document.getElementById('rs-sell-rate');
-      if (rsBuyRate)  rsBuyRate.textContent  = '$' + PRICES.rs.buy.toFixed(2);
-      if (rsSellRate) rsSellRate.textContent = '$' + PRICES.rs.sell.toFixed(2);
+      if (rsBuyRate)  rsBuyRate.textContent  = '$' + (PRICES.rs.buy ||0.22).toFixed(2);
+      if (rsSellRate) rsSellRate.textContent = '$' + (PRICES.rs.sell||0.18).toFixed(2);
       calcRS('buy');
       calcRS('sell');
 
       // ── WoW Classic ──
-      const wcbRate = PRICES.wowc.buy;
-      const wcsRate = PRICES.wowc.sell;
       const wcbRateEl = document.getElementById('wowc-buy-rate');
       const wcsRateEl = document.getElementById('wowc-sell-rate');
-      if (wcbRateEl) wcbRateEl.textContent = '$' + wcbRate.toFixed(3);
-      if (wcsRateEl) wcsRateEl.textContent = '$' + wcsRate.toFixed(3);
-      // Repatch inline onclick rates in quick buttons
-      document.querySelectorAll('#wowc-buy .quick-btn').forEach(b => {
-        const v = parseInt(b.textContent);
-        b.onclick = () => { setVal('wowc-buy-qty','wowc-buy-slider',v); calcWowSimple('wowc','buy',wcbRate); };
-      });
-      document.querySelectorAll('#wowc-sell .quick-btn').forEach(b => {
-        const v = parseInt(b.textContent);
-        b.onclick = () => { setVal('wowc-sell-qty','wowc-sell-slider',v); calcWowSimple('wowc','sell',wcsRate); };
-      });
-      // Repatch input handlers
-      const wcbQty = document.getElementById('wowc-buy-qty');
-      const wcsQty = document.getElementById('wowc-sell-qty');
-      if (wcbQty) wcbQty.oninput = () => { calcWowSimple('wowc','buy',wcbRate); syncSlider('wowc-buy-qty','wowc-buy-slider',1,500); };
-      if (wcsQty) wcsQty.oninput = () => { calcWowSimple('wowc','sell',wcsRate); syncSlider('wowc-sell-qty','wowc-sell-slider',1,500); };
-      const wcbSlider = document.getElementById('wowc-buy-slider');
-      const wcsSlider = document.getElementById('wowc-sell-slider');
-      if (wcbSlider) wcbSlider.oninput = function(){ syncInput(this,'wowc-buy-qty'); calcWowSimple('wowc','buy',wcbRate); };
-      if (wcsSlider) wcsSlider.oninput = function(){ syncInput(this,'wowc-sell-qty'); calcWowSimple('wowc','sell',wcsRate); };
-      calcWowSimple('wowc','buy',wcbRate);
-      calcWowSimple('wowc','sell',wcsRate);
+      if (wcbRateEl) wcbRateEl.textContent = '$' + (PRICES.wowc?.buy  || 0.60).toFixed(3) + '/G';
+      if (wcsRateEl) wcsRateEl.textContent = '$' + (PRICES.wowc?.sell || 0.48).toFixed(3) + '/G';
+      calcWowClassic('buy');
+      calcWowClassic('sell');
 
       // ── WoW Retail ──
-      const wrbRate = PRICES.wowr_us.buy / 100;  // sheet stores per 100K, calc needs per K
-      const wrsRate = PRICES.wowr_us.sell / 100;
       const wrbRateEl = document.getElementById('wowr-buy-rate');
       const wrsRateEl = document.getElementById('wowr-sell-rate');
-      if (wrbRateEl) wrbRateEl.textContent = '$' + PRICES.wowr_us.buy.toFixed(2) + '/100K';
-      if (wrsRateEl) wrsRateEl.textContent = '$' + PRICES.wowr_us.sell.toFixed(2) + '/100K';
-      document.querySelectorAll('#wowr-buy .quick-btn').forEach(b => {
-        const v = parseInt(b.textContent);
-        b.onclick = () => { setVal('wowr-buy-qty','wowr-buy-slider',v); calcWowSimple('wowr','buy',wrbRate); };
-      });
-      document.querySelectorAll('#wowr-sell .quick-btn').forEach(b => {
-        const v = parseInt(b.textContent);
-        b.onclick = () => { setVal('wowr-sell-qty','wowr-sell-slider',v); calcWowSimple('wowr','sell',wrsRate); };
-      });
-      const wrbQty = document.getElementById('wowr-buy-qty');
-      const wrsQty = document.getElementById('wowr-sell-qty');
-      if (wrbQty) wrbQty.oninput = () => { calcWowSimple('wowr','buy',wrbRate); syncSlider('wowr-buy-qty','wowr-buy-slider',1,500); };
-      if (wrsQty) wrsQty.oninput = () => { calcWowSimple('wowr','sell',wrsRate); syncSlider('wowr-sell-qty','wowr-sell-slider',1,500); };
-      const wrbSlider = document.getElementById('wowr-buy-slider');
-      const wrsSlider = document.getElementById('wowr-sell-slider');
-      if (wrbSlider) wrbSlider.oninput = function(){ syncInput(this,'wowr-buy-qty'); calcWowSimple('wowr','buy',wrbRate); };
-      if (wrsSlider) wrsSlider.oninput = function(){ syncInput(this,'wowr-sell-qty'); calcWowSimple('wowr','sell',wrsRate); };
-      calcWowSimple('wowr','buy',wrbRate);
-      calcWowSimple('wowr','sell',wrsRate);
+      if (wrbRateEl) wrbRateEl.textContent = '$' + (PRICES.wowr_us?.buy  || 0.82).toFixed(2) + '/100K';
+      if (wrsRateEl) wrsRateEl.textContent = '$' + (PRICES.wowr_us?.sell || 0.65).toFixed(2) + '/100K';
+      calcWowRetail('buy');
+      calcWowRetail('sell');
 
       // ── Membresías ──
       updateMemCards();
@@ -442,7 +406,7 @@ let boostRate=0, boostSkill='';
       if (rateEl)  rateEl.textContent  = '$' + pricePerUnit.toFixed(2);
       if (qtyEl)   qtyEl.textContent   = qty + ' ' + timeUnit + (qty !== 1 ? 's' : '');
       if (timeEl)  timeEl.textContent  = timePerUnit;
-      if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+      if (totalEl) setConvertedBuy('mem-'+type+'-total', total);
     }
 
     function updateMemCards() {
@@ -501,16 +465,16 @@ let boostRate=0, boostSkill='';
       }
     }
 
-    function toggleDrop(id, btn) {
-      const drop = document.getElementById(id), isOpen = drop.classList.contains('show');
-      closeAll();
-      if(!isOpen) { drop.classList.add('show'); btn.classList.add('open'); }
-    }
-    function closeAll() {
-      document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('show'));
-      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('open'));
-    }
-    document.addEventListener('click', e => { if(!e.target.closest('.nav-item')) closeAll(); });
+function toggleDrop(id, btn) {
+  const drop = document.getElementById(id), isOpen = drop.classList.contains('show');
+  closeAll();
+  if(!isOpen) { drop.classList.add('show'); btn.classList.add('open'); }
+}
+function closeAll() {
+  document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('show'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('open'));
+}
+document.addEventListener('click', e => { if(!e.target.closest('.nav-item')) closeAll(); });
 
     function toggleMobile() {
       const menu = document.getElementById('mobile-menu');
@@ -543,25 +507,31 @@ let boostRate=0, boostSkill='';
       const view = document.getElementById('view-'+game);
       if(view) {
         view.querySelectorAll('.inner-tab').forEach(t => {
-          const isBuy = t.textContent.includes('Comprar');
+          const isBuy = t.textContent.includes('Comprar') || t.textContent.includes('Buy');
           t.classList.toggle('active', tab==='buy' ? isBuy : !isBuy);
         });
       }
+      // Cambiar tasa: buy = cliente compra (tasa alta), sell = cliente vende (tasa baja)
+      setRateMode(tab);
     }
 
     function calcRS(mode) {
       const qty = parseFloat(document.getElementById('rs-'+mode+'-qty').value)||0;
-      const buyRate  = (PRICES && PRICES.rs) ? PRICES.rs.buy  : 0.38;
-      const sellRate = (PRICES && PRICES.rs) ? PRICES.rs.sell : 0.30;
-      if(mode==='buy') {
-        let disc='', mult=1;
+      // "Buy Gold"  tab = cliente COMPRA → nosotros le VENDEMOS → precio weSell (más caro)
+      // "Sell Gold" tab = cliente VENDE  → nosotros le COMPRAMOS → precio weBuy (más barato)
+      // PRICES.rs.sell = what client pays us ($0.22) → Buy Gold tab
+      // PRICES.rs.buy  = what we pay provider ($0.18) → Sell Gold tab
+      const weSell = PRICES.rs.sell || 0.22;
+      const weBuy  = PRICES.rs.buy  || 0.18;
+      if (mode === 'buy') {
+        let disc = '', mult = 1;
         if(qty>=2000){disc='-10%';mult=0.9;} else if(qty>=1000){disc='-5%';mult=0.95;} else if(qty>=500){disc='-3%';mult=0.97;}
         document.getElementById('rs-buy-qty-show').textContent = qty>=1000?(qty/1000).toFixed(2).replace(/\.?0+$/,'')+'B':qty+'M';
         document.getElementById('rs-buy-disc').textContent = disc||'—';
-        document.getElementById('rs-buy-total').textContent = '$'+(qty*buyRate*mult).toFixed(2);
+        setConverted('rs-buy-total', qty * weSell * mult);
       } else {
         document.getElementById('rs-sell-qty-show').textContent = qty>=1000?(qty/1000).toFixed(2).replace(/\.?0+$/,'')+'B':qty+'M';
-        document.getElementById('rs-sell-total').textContent = '$'+(qty*sellRate).toFixed(2);
+        setConverted('rs-sell-total', qty * weBuy);
       }
     }
 
@@ -572,10 +542,12 @@ let boostRate=0, boostSkill='';
         if(qty>=500){disc='-8%';mult=0.92;} else if(qty>=100){disc='-4%';mult=0.96;}
         document.getElementById(prefix+'-buy-qty-show').textContent = qty+'K';
         document.getElementById(prefix+'-buy-disc').textContent = disc||'—';
-        document.getElementById(prefix+'-buy-total').textContent = '$'+(qty*rate*mult).toFixed(2);
+        const wowBuyUsd = qty*rate*mult;
+        setConverted(prefix+'-buy-total', wowBuyUsd);
       } else {
         document.getElementById(prefix+'-sell-qty-show').textContent = qty+'K';
-        document.getElementById(prefix+'-sell-total').textContent = '$'+(qty*rate).toFixed(2);
+        const wowSellUsd = qty*rate;
+        setConverted(prefix+'-sell-total', wowSellUsd);
       }
     }
 
@@ -592,7 +564,7 @@ let boostRate=0, boostSkill='';
       const titleEl = document.getElementById('ps-title');
       const descEl  = document.getElementById('ps-desc');
       if (titleEl) titleEl.textContent = 'RS Private — '+(cfg.name||server);
-      if (descEl)  descEl.textContent  = 'Unit: '+(cfg.unitRaw||'1B')+' · Buy & sell';
+      if (descEl)  descEl.textContent  = 'Unit: '+(cfg.unitRaw||'1B')+' · Buy';
       calcPriv('buy');
     }
     function selectPSSell(server) {
@@ -604,9 +576,9 @@ let boostRate=0, boostSkill='';
       calcPriv('sell');
     }
     function calcPriv(mode) {
+      // RSPS = solo vendemos → siempre ratesBuy (tasa que damos al cliente comprador)
       const qty    = parseFloat(document.getElementById('priv-'+mode+'-qty').value)||0;
       const server = mode==='buy' ? psMode : psSellMode;
-      // Use dynamic prices from sheet
       const dyn = PRICES.rsps[server] || PRICES.rsps[server.toLowerCase()] || {};
       const fall = psConfig[server] || {};
       const rate      = dyn.clientPrice  || fall.buyRate || 0;
@@ -614,18 +586,140 @@ let boostRate=0, boostSkill='';
       const name      = dyn.name        || fall.name || server;
       const qtyStr    = qty + unitShort;
       const rateStr   = '$'+rate.toFixed(2)+'/'+unitShort;
-      const total     = '$'+(qty*rate).toFixed(2);
+      const privUsd   = qty*rate;
       if (mode==='buy') {
         const s=document.getElementById('priv-buy-server');    if(s) s.textContent=name;
         const r=document.getElementById('priv-buy-rate');      if(r) r.textContent=rateStr;
         const q=document.getElementById('priv-buy-qty-show');  if(q) q.textContent=qtyStr;
-        const t=document.getElementById('priv-buy-total');     if(t) t.textContent=total;
+        setConvertedBuy('priv-buy-total', privUsd);
       } else {
         const s=document.getElementById('priv-sell-server');   if(s) s.textContent=name;
         const r=document.getElementById('priv-sell-rate');     if(r) r.textContent=rateStr;
         const q=document.getElementById('priv-sell-qty-show'); if(q) q.textContent=qtyStr;
-        const t=document.getElementById('priv-sell-total');    if(t) t.textContent=total;
+        setConvertedBuy('priv-sell-total', privUsd);
       }
+    }
+
+    // ══════════════════════════════════════════
+    // WOW CLASSIC — Server / Faction / Username
+    // ══════════════════════════════════════════
+    const wowcState = {
+      buy:  { server: 'Nightslayer', faction: 'Alliance' },
+      sell: { server: 'Nightslayer', faction: 'Alliance' }
+    };
+
+    function selectWowcServer(mode, server, btn) {
+      wowcState[mode].server = server;
+      const prefix = 'wowc-' + mode + '-srv-';
+      document.querySelectorAll('[id^="' + prefix + '"]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('wowc-' + mode + '-srv-show').textContent =
+        wowcState[mode].server + ' · ' + wowcState[mode].faction;
+    }
+
+    function selectWowcFaction(mode, faction, btn) {
+      wowcState[mode].faction = faction;
+      const prefix = 'wowc-' + mode + '-fac-';
+      document.querySelectorAll('[id^="' + prefix + '"]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('wowc-' + mode + '-srv-show').textContent =
+        wowcState[mode].server + ' · ' + wowcState[mode].faction;
+    }
+
+    function calcWowClassic(mode) {
+      const qty = parseFloat(document.getElementById('wowc-' + mode + '-qty').value) || 0;
+      // Price is per 1G — use live prices from sheet
+      const pricePerG = mode === 'buy'
+        ? (PRICES.wowc?.buy  || 0.60)
+        : (PRICES.wowc?.sell || 0.48);
+      const usd = qty * pricePerG;
+      document.getElementById('wowc-' + mode + '-qty-show').textContent = qty + 'G';
+      if (mode === 'buy') {
+        setConverted('wowc-buy-total', usd);
+      } else {
+        setConverted('wowc-sell-total', usd);
+      }
+    }
+
+    function openWowcOrder(mode) {
+      const username = (document.getElementById('wowc-' + mode + '-username')?.value || '').trim();
+      const state    = wowcState[mode];
+      const qty      = document.getElementById('wowc-' + mode + '-qty')?.value || '0';
+      const total    = document.getElementById('wowc-' + mode + '-total')?.textContent || '';
+      const action   = mode === 'buy' ? 'BUY' : 'SELL';
+      const payment = getSelectedPayment();
+      let msg = `Hi! I want to ${action} WoW Classic Gold | Server: ${state.server} | Faction: ${state.faction} | Amount: ${qty}G | Total: ${total}`;
+      if (username) msg += ` | Character: ${username}`;
+      if (payment)  msg += ` | Payment: ${payment}`;
+      msg += `. Can you help me?`;
+      openTawkChat(msg);
+    }
+
+    // ══════════════════════════════════════════
+    // WOW RETAIL — Region / Faction / Username
+    // ══════════════════════════════════════════
+    const wowrState = {
+      buy:  { region: 'US', faction: 'Alliance' },
+      sell: { region: 'US', faction: 'Alliance' }
+    };
+
+    function selectWowrRegion(mode, region, btn) {
+      wowrState[mode].region = region;
+      const prefix = 'wowr-' + mode + '-reg-';
+      document.querySelectorAll('[id^="' + prefix + '"]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('wowr-' + mode + '-cfg-show').textContent =
+        wowrState[mode].region + ' · ' + wowrState[mode].faction;
+      calcWowRetail(mode);
+    }
+
+    function selectWowrFaction(mode, faction, btn) {
+      wowrState[mode].faction = faction;
+      const prefix = 'wowr-' + mode + '-fac-';
+      document.querySelectorAll('[id^="' + prefix + '"]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('wowr-' + mode + '-cfg-show').textContent =
+        wowrState[mode].region + ' · ' + wowrState[mode].faction;
+    }
+
+    function calcWowRetail(mode) {
+      const qty = parseFloat(document.getElementById('wowr-' + mode + '-qty').value) || 0;
+      const region = wowrState[mode].region;
+      // Price is per 100K — use live prices, EU uses wowr_eu if available
+      let pricePerUnit;
+      if (mode === 'buy') {
+        pricePerUnit = region === 'EU'
+          ? (PRICES.wowr_eu?.buy  || PRICES.wowr_us?.buy  || 0.82)
+          : (PRICES.wowr_us?.buy  || 0.82);
+      } else {
+        pricePerUnit = region === 'EU'
+          ? (PRICES.wowr_eu?.sell || PRICES.wowr_us?.sell || 0.65)
+          : (PRICES.wowr_us?.sell || 0.65);
+      }
+      const usd = qty * pricePerUnit;
+      document.getElementById('wowr-' + mode + '-qty-show').textContent = (qty * 100) + 'K';
+      if (mode === 'buy') {
+        setConverted('wowr-buy-total', usd);
+      } else {
+        setConverted('wowr-sell-total', usd);
+      }
+    }
+
+    function openWowrOrder(mode) {
+      const server   = (document.getElementById('wowr-' + mode + '-server')?.value   || '').trim();
+      const username = (document.getElementById('wowr-' + mode + '-username')?.value || '').trim();
+      const state    = wowrState[mode];
+      const qty      = document.getElementById('wowr-' + mode + '-qty')?.value || '0';
+      const total    = document.getElementById('wowr-' + mode + '-total')?.textContent || '';
+      const action   = mode === 'buy' ? 'BUY' : 'SELL';
+      const gold     = (parseFloat(qty) * 100) + 'K';
+      const payment  = getSelectedPayment();
+      let msg = `Hi! I want to ${action} WoW Retail Gold | Region: ${state.region} | Faction: ${state.faction} | Amount: ${gold} | Total: ${total}`;
+      if (server)   msg += ` | Server: ${server}`;
+      if (username) msg += ` | Character: ${username}`;
+      if (payment)  msg += ` | Payment: ${payment}`;
+      msg += `. Can you help me?`;
+      openTawkChat(msg);
     }
 
     // ── Shims for old references ──
@@ -747,7 +841,7 @@ let boostRate=0, boostSkill='';
       const c = document.getElementById('boost-selected-count');
       const t = document.getElementById('boost-total-display');
       if (c) c.textContent = `${keys.length} service${keys.length !== 1 ? 's' : ''} selected`;
-      if (t) t.textContent = `$${total.toFixed(2)}`;
+      if (t) setConvertedBuy('boost-total-display', total);
     }
 
     function clearBoostSelection() {
@@ -756,14 +850,172 @@ let boostRate=0, boostSkill='';
       renderBoostTable();
     }
 
-    function openModal() {
-      document.getElementById('order-modal').style.display='block';
-      document.body.style.overflow='hidden';
+    // ══════════════════════════════════════════
+    // ORDEN → CHAT EN VIVO (Tawk.to)
+    // ══════════════════════════════════════════
+    function openModal(customMsg) {
+      let msg = customMsg || buildOrderMessage();
+      openTawkChat(msg);
     }
+
+    function getSelectedPayment() {
+      // Get selected payment from active calc card custom dropdown
+      const activeCard = document.querySelector('.view.active .calc-card');
+      if (!activeCard) return '';
+      const btn = activeCard.querySelector('.pay-drop-btn');
+      return btn ? btn.querySelector('.pay-drop-text')?.textContent?.trim() || '' : '';
+    }
+
+    function togglePayDrop(btn) {
+      const wrap = btn.closest('.pay-drop-wrap');
+      const menu = wrap.querySelector('.pay-drop-menu');
+      const isOpen = menu.classList.contains('open');
+      // Close all other open dropdowns first
+      document.querySelectorAll('.pay-drop-menu.open').forEach(m => {
+        m.classList.remove('open');
+        m.previousElementSibling?.classList.remove('open');
+      });
+      if (!isOpen) {
+        menu.classList.add('open');
+        btn.classList.add('open');
+      }
+    }
+
+    function selectPayment(item, label, imgUrl) {
+      const wrap = item.closest('.pay-drop-wrap');
+      const btn  = wrap.querySelector('.pay-drop-btn');
+      const menu = wrap.querySelector('.pay-drop-menu');
+      // Update button display
+      btn.querySelector('.pay-drop-icon').src = imgUrl;
+      btn.querySelector('.pay-drop-text').textContent = label;
+      // Mark active
+      menu.querySelectorAll('.pay-drop-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      // Close
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.pay-drop-wrap')) {
+        document.querySelectorAll('.pay-drop-menu.open').forEach(m => {
+          m.classList.remove('open');
+          m.previousElementSibling?.classList.remove('open');
+        });
+      }
+    });
+
+    function buildOrderMessage() {
+      const activeInnerTab = document.querySelector('.inner-tab.active');
+      const isBuy = activeInnerTab ? (activeInnerTab.textContent.includes('Buy') || activeInnerTab.textContent.includes('Comprar')) : true;
+      const mode  = isBuy ? 'BUY' : 'SELL';
+      const modeKey = isBuy ? 'buy' : 'sell';
+
+      // Detect active game view
+      const activeView = document.querySelector('.view.active');
+      const viewId = activeView ? activeView.id : '';
+      let game = 'RuneScape';
+      if (viewId.includes('wow-classic')) game = 'WoW Classic';
+      else if (viewId.includes('wow-retail')) game = 'WoW Retail';
+      else if (viewId.includes('rs')) game = 'OSRS/RS3';
+
+      // Amount and total
+      let qty = '', total = '';
+      const qtyEl   = document.querySelector('#rs-' + modeKey + '-qty-show, #wowc-' + modeKey + '-qty-show, #wowr-' + modeKey + '-qty-show');
+      const totalEl = document.querySelector('#rs-' + modeKey + '-total, #wowc-' + modeKey + '-total, #wowr-' + modeKey + '-total');
+      if (qtyEl) qty = qtyEl.textContent;
+      if (totalEl) total = totalEl.textContent;
+
+      // RSN (RuneScape Name)
+      const rsn = (document.getElementById('rs-' + modeKey + '-username')?.value || '').trim();
+
+      const payment = getSelectedPayment();
+      let msg = `Hi! I want to ${mode} Gold from ${game}`;
+      if (qty)     msg += ` | Amount: ${qty}`;
+      if (total)   msg += ` | Total: ${total}`;
+      if (rsn)     msg += ` | RSN: ${rsn}`;
+      if (payment) msg += ` | Payment: ${payment}`;
+      msg += `. Can you help me?`;
+      return msg;
+    }
+
+    function openChatForAccount(title, price, type) {
+      const priceStr = price > 0 ? '$' + parseFloat(price).toFixed(2) : 'precio a consultar';
+      const msg = `Hi! I'm interested in buying the account: "${title}" (${type.toUpperCase()}) - ${priceStr}. Is it available?`;
+      openTawkChat(msg);
+    }
+
+    function openChatForService(serviceName) {
+      const msg = `Hi! I'm interested in the service: "${serviceName}". Can you give me more information?`;
+      openTawkChat(msg);
+    }
+
+    function openChatForMembership(plan) {
+      const msg = `Hi! I want to adquirir una membresía: "${plan}". How do I proceed?`;
+      openTawkChat(msg);
+    }
+
+    function openTawkChat(msg) {
+      // Guardar el mensaje para mostrarlo
+      window._pendingOrderMsg = msg;
+
+      // Intentar setear atributos del visitante para que tú los veas en tu panel
+      function setTawkAttrs() {
+        if (window.Tawk_API && window.Tawk_API.setAttributes) {
+          window.Tawk_API.setAttributes({
+            'Pedido': msg,
+            'name': (window._currentUser && window._currentUser.email) ? window._currentUser.email.split('@')[0] : 'Cliente'
+          }, function(){});
+        }
+      }
+
+      if (window.Tawk_API && window.Tawk_API.maximize) {
+        setTawkAttrs();
+        window.Tawk_API.maximize();
+        showOrderToast(msg);
+      } else {
+        // Tawk no cargó aún, esperar
+        showOrderToast(msg);
+        let tries = 0;
+        const wait = setInterval(() => {
+          tries++;
+          if (window.Tawk_API && window.Tawk_API.maximize) {
+            clearInterval(wait);
+            setTawkAttrs();
+            window.Tawk_API.maximize();
+          }
+          if (tries > 20) clearInterval(wait);
+        }, 300);
+      }
+    }
+
+    function showOrderToast(msg) {
+      const existing = document.getElementById('order-toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.id = 'order-toast';
+      toast.style.cssText = `
+        position:fixed;bottom:100px;right:20px;z-index:99999;
+        background:#0d0d18;border:1px solid #4db8ff;
+        border-radius:12px;padding:16px 20px;max-width:340px;
+        box-shadow:0 8px 32px rgba(0,0,0,.8);font-family:'DM Sans',sans-serif;
+        animation:slideUp .3s ease;
+      `;
+      toast.innerHTML = `
+        <button onclick="this.parentElement.remove()" style="position:absolute;top:8px;right:10px;background:none;border:none;color:#7a7890;cursor:pointer;font-size:18px;line-height:1;">×</button>
+        <div style="font-size:11px;color:#4db8ff;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">✅ Order registered</div>
+        <div style="font-size:12px;color:#c0bdd0;line-height:1.6;margin-bottom:10px;">${msg}</div>
+        <div style="font-size:11px;color:#4acc88;">💬 Chat opened — tell our agent about your order and we'll assist you right away.</div>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => { if (toast.parentElement) toast.remove(); }, 7000);
+    }
+
     function closeModal(e) {
       if(e && e.currentTarget !== e.target) return;
-      document.getElementById('order-modal').style.display='none';
-      document.body.style.overflow='';
+      const modal = document.getElementById('order-modal');
+      if (modal) { modal.style.display='none'; document.body.style.overflow=''; }
     }
     document.addEventListener('keydown', e=>{ if(e.key==='Escape') { closeModal(); closeMobile(); } });
 
@@ -943,11 +1195,11 @@ let boostRate=0, boostSkill='';
       }
       // Update modal title
       const titles = {
-        tos: 'Términos de Servicio — OSRS / RSPS',
-        accounts: 'Política de Cuentas',
-        boosting: 'Normas de Boosting',
-        privacy: 'Política de Privacidad',
-        refunds: 'Política de Reembolsos'
+        tos: 'Terms of Service — OSRS / RSPS',
+        accounts: 'Account Policy',
+        boosting: 'Boosting Rules',
+        privacy: 'Privacy Policy',
+        refunds: 'Refund Policy'
       };
       const titleEl = document.getElementById('legal-modal-title');
       if (titleEl) titleEl.textContent = titles[section] || 'Legal';
@@ -959,28 +1211,131 @@ let boostRate=0, boostSkill='';
     let currentCurrency = { code: 'USD', symbol: '$', rate: 1 };
     let currentLang = 'en';
 
-    // Exchange rates (approximate, vs USD)
-    const rates = {
-      USD: 1, EUR: 0.92, GBP: 0.79, CAD: 1.36,
-      ARS: 880, VES: 36, COP: 3900, MXN: 17, BRL: 4.97
-    };
+    // ── TASAS DE CAMBIO ──
+    // ratesBuy  = cliente COMPRA  → tasa alta  (spread + del bot)
+    // ratesSell = cliente VENDE   → tasa baja  (spread - del bot)
+    const ratesBuy  = { USD:1, EUR:0.92, GBP:0.79, CAD:1.36, ARS:880, VES:40, COP:3900 };
+    const ratesSell = { USD:1, EUR:0.92, GBP:0.79, CAD:1.36, ARS:880, VES:40, COP:3900 };
+    let   rateMode  = 'buy'; // cambia al hacer click en tab Buy/Sell
+    const rates     = { ...ratesBuy }; // objeto activo usado por toda la web
 
+    // Llama esto cuando el usuario cambia entre tab Comprar / Vender
+    function setRateMode(mode) {
+      rateMode = mode;
+      const src = mode === 'sell' ? ratesSell : ratesBuy;
+      Object.assign(rates, src);
+      if (currentCurrency.code !== 'USD') {
+        currentCurrency.rate = rates[currentCurrency.code] || 1;
+        updateAllPrices();
+      }
+    }
+
+    async function loadLiveRates() {
+      let botOk = false;
+
+      // ── FUENTE 1: pestaña TASAS_WEB escrita por el bot cada 10 min ──
+      try {
+        const r   = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vS0F73I1g1jLRRNsLs4jsny_Kg58A3l15pGA0iSENCkBKfU1Te3mhg1-vAKw4fYpL_hZ4G1XSXkJeOj/pub?gid=314158463&single=true&output=csv');
+        const txt = await r.text();
+        const rows = txt.trim().split('\n').slice(1); // omitir fila header
+
+        // Parse CSV respetando comillas — Google exporta con comillas cuando hay comas en números
+        // Ej: "VES","659,99","622,63","2026-04-16 02:43:05"
+        function parseCSVRow(row) {
+          const cols = [];
+          let cur = '', inQ = false;
+          for (let i = 0; i < row.length; i++) {
+            if (row[i] === '"') { inQ = !inQ; continue; }
+            if (row[i] === ',' && !inQ) { cols.push(cur.trim()); cur = ''; continue; }
+            cur += row[i];
+          }
+          cols.push(cur.trim());
+          return cols;
+        }
+
+        // Convierte número con posible coma decimal (1536,6661 → 1536.6661)
+        function parseNum(s) {
+          if (!s) return NaN;
+          // Si tiene punto Y coma: formato europeo miles "1.536,66" → quitar punto, coma→punto
+          if (s.includes('.') && s.includes(',')) s = s.replace(/\./g,'').replace(',','.');
+          // Si solo tiene coma: decimal europeo "659,99" → "659.99"
+          else if (s.includes(',')) s = s.replace(',','.');
+          return parseFloat(s);
+        }
+
+        let n = 0, ts = '';
+        rows.forEach(row => {
+          if (!row.trim()) return; // skip empty rows
+          const c = parseCSVRow(row);
+          const code = c[0];
+          const buy  = parseNum(c[1]);
+          const sell = parseNum(c[2]);
+          if (!code || isNaN(buy) || buy <= 0) return;
+          ratesBuy[code]  = buy;
+          ratesSell[code] = (!isNaN(sell) && sell > 0) ? sell : buy;
+          rates[code]     = rateMode === 'sell' ? ratesSell[code] : ratesBuy[code];
+          ts = c[3] || ts; n++;
+        });
+        if (n > 0) {
+          botOk = true;
+          console.log(`[Rates] ✅ ${n} monedas del bot (${ts})`);
+          _ratesBadge('● BOT LIVE', `Bot rates · ${ts}`);
+        }
+      } catch(e) { console.warn('[Rates] Sheet del bot falló:', e.message); }
+
+      // ── FUENTE 2: fallback open.er-api para EUR/GBP/CAD/MXN/BRL ──
+      if (!botOk) {
+        try {
+          const r = await fetch('https://open.er-api.com/v6/latest/USD');
+          const d = await r.json();
+          if (d?.rates) {
+            ['EUR','GBP','CAD'].forEach(c => {
+              if (d.rates[c]) ratesBuy[c] = ratesSell[c] = rates[c] = d.rates[c];
+            });
+            _ratesBadge('● LIVE', 'open.er-api fallback');
+          }
+        } catch(e2) { _ratesBadge('● OFFLINE', 'Approximate rates'); }
+      }
+
+      if (currentCurrency.code !== 'USD') {
+        currentCurrency.rate = rates[currentCurrency.code] || 1;
+        updateAllPrices();
+      }
+    }
+
+    function _ratesBadge(label, tip) {
+      const el = document.querySelector('#currency-panel .nav-panel-title');
+      if (!el) return;
+      const col = label.includes('BOT') ? 'var(--accent)' : label.includes('OFFLINE') ? '#f87' : 'var(--accent)';
+      el.innerHTML = `Currency <span style="color:${col};font-size:9px;letter-spacing:.5px;" title="${tip}">${label}</span>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadLiveRates);
+    if (document.readyState !== 'loading') loadLiveRates();
+
+    // Auto-refresh tasas cada 10 min — sin necesidad de recargar la página
+    setInterval(async () => {
+      console.log('[Rates] Auto-refreshing rates...');
+      await loadLiveRates();
+      if (currentCurrency.code !== 'USD') {
+        currentCurrency.rate = rates[currentCurrency.code] || 1;
+      }
+      updateAllPrices();
+    }, 10 * 60 * 1000);
+
+    // English only — translations locked to EN
     const translations = {
       en: {
-        // Auth
         login: 'Login', register: 'Sign Up',
         welcome_back: 'Welcome back!',
-        login_sub: 'Access your account to view your orders and manage your transactions.',
-        login_notice: '🔔 Account management is currently handled through Discord.',
+        login_sub: 'Access your account to view your orders.',
         create_account: 'Create an account',
-        register_sub: 'Join VeikenGold and start buying gold safely.',
-        register_notice: '🔔 Registration is done through Discord. Join our server to create your account.',
-        email: 'Email / Discord User', password: 'Password', username: 'Username',
+        register_sub: 'Join VeikenGold and start buying safely.',
+        email: 'Email', password: 'Password', username: 'Username',
         login_btn: 'Login', register_btn: 'Create Account',
         or: 'or continue with', discord_login: 'Continue with Discord',
         discord_register: 'Sign up with Discord',
-        // Nav
-        nav_coins: 'Coins', nav_mem: 'Memberships', nav_svc: 'Services', nav_accounts: 'Accounts',
+        nav_coins: 'Currency', nav_mem: 'Memberships', nav_svc: 'Boosting', nav_accounts: 'Accounts',
         dd_gold_oficial: 'Official Gold', dd_subs: 'Subscriptions & Bonds',
         dd_rs_svc: 'RS Services', dd_game_accounts: 'Game Accounts',
         dd_rs_sub: 'RS3 · OSRS', dd_wow_classic_sub: 'Era · SoD · Hardcore',
@@ -990,20 +1345,15 @@ let boostRate=0, boostSkill='';
         dd_bond_sub: '14 days · from $8.00', dd_wow_sub_sub: '30 days · from $12.00',
         dd_calc: 'Services Calculator', dd_calc_sub: 'Skilling · PvM · Minigames · +more',
         dd_osrs_sub: 'Pures · Mains · Skillers · +more',
-        // Mobile
         mob_ps: 'RS Private Servers', mob_mem_svc: 'Memberships & Services',
         mob_coins: 'Coins', mob_accounts: 'Accounts',
-        // Hero
         hero_h1: 'The most trusted<br>marketplace for <em>Gaming Gold</em>',
         hero_p: 'Gold, memberships and boosting for RuneScape and World of Warcraft. Fast delivery, secure transactions.',
         badge_delivery: '⚡ Delivery <10 min', badge_secure: '🔒 Secure payment', badge_reviews: '⭐ 4.9 / 5 reviews',
-        // Home
         games_title: 'Available Games',
         pill_coins: '💰 Coins', pill_accounts: '👤 Accounts', pill_boosting: '⚡ Boosting', pill_mem: '🎫 Memberships',
-        // Tabs
         tab_buy: '🛒 Buy Gold', tab_sell: '💰 Sell Gold',
         back_btn: '← Back',
-        // RS
         rs_desc: 'Buy and sell gold · RS3 & OSRS',
         rs_buy_title: '🛒 How much gold do you want to buy?',
         rs_sell_title: '💰 How much gold do you want to sell?',
@@ -1015,33 +1365,26 @@ let boostRate=0, boostSkill='';
         order_btn: 'Place Order →', sell_btn: 'Sell Now →',
         note_delivery: '⚡ Delivery in less than 10 minutes · Secure payment',
         price_we_pay: 'Price we pay per million', you_receive: "You'll receive",
-        note_sell: '💸 Immediate payment · PayPal · Crypto',
-        // WoW Classic
+        note_sell: '💸 Immediate payment · Crypto',
         wowc_desc: 'Buy and sell gold · Era · SoD · Hardcore',
         wowc_buy_title: '🏰 How much WoW Classic gold do you want to buy?',
         wowc_sell_title: '🏰 How much WoW Classic gold do you want to sell?',
-        // WoW Retail
         wowr_desc: 'Buy and sell gold · The War Within',
         wowr_buy_title: '🌍 How much WoW Retail gold do you want to buy?',
         wowr_sell_title: '🌍 How much WoW Retail gold do you want to sell?',
-        // PS
         ps_buy_title: '🛒 How much gold do you want to buy?',
-        // Memberships
         mem_desc: 'RS Bond · WoW Subscription',
-        // Boost
         boost_desc: 'Select the service and calculate your budget instantly',
         boost_select: 'Select a skill above', boost_title: '⚡ Skilling Quote',
         level_from: 'Current Level', level_to: 'Desired Level',
         skill_lbl: 'Skill', levels_up: 'Levels to gain', price_per_lvl: 'Price per level',
         total_est: 'Estimated total', select_skill_btn: 'Select a skill',
         note_boost: 'Estimated time by skill · Secure account guaranteed',
-        // OSRS Accounts
         osrs_desc: 'Verified accounts · Secure delivery · Warranty included',
         filter_all: 'All', filter_pures: 'Pures', filter_mains: 'Mains',
         filter_skillers: 'Skillers', filter_zerkers: 'Zerkers', filter_ironman: 'Ironman',
         custom_acc: 'Looking for an account with specific stats?',
         we_get_it: "and we'll get it.",
-        // Footer
         reputation: 'Our Reputation — Verify our references',
         pay_methods: 'Accepted payment methods',
         footer_desc: 'Your trusted marketplace!',
@@ -1058,104 +1401,13 @@ let boostRate=0, boostSkill='';
         marketplace: 'The most trusted', confiable: 'marketplace for', game_gold: 'game gold',
         delivery: 'Delivery <10 min', secure: 'Secure payment', reviews: '4.9 / 5 reviews',
         contact_discord: 'Contact us on Discord',
-      },
-      es: {
-        // Auth
-        login: 'Iniciar Sesión', register: 'Registrarse',
-        welcome_back: '¡Bienvenido de vuelta!',
-        login_sub: 'Accede a tu cuenta para ver tus pedidos y gestionar tus transacciones.',
-        login_notice: '🔔 Actualmente el sistema de cuentas se gestiona a través de Discord.',
-        create_account: 'Crear una cuenta',
-        register_sub: 'Únete a VeikenGold y empieza a comprar gold de forma segura.',
-        register_notice: '🔔 El registro se realiza a través de Discord. Únete para crear tu cuenta.',
-        email: 'Correo / Usuario Discord', password: 'Contraseña', username: 'Nombre de usuario',
-        login_btn: 'Iniciar Sesión', register_btn: 'Crear Cuenta',
-        or: 'o continúa con', discord_login: 'Continuar con Discord',
-        discord_register: 'Registrarse con Discord',
-        // Nav
-        nav_coins: 'Monedas', nav_mem: 'Membresías', nav_svc: 'Servicios', nav_accounts: 'Cuentas',
-        dd_gold_oficial: 'Gold oficial', dd_subs: 'Suscripciones y Bonds',
-        dd_rs_svc: 'RS Services', dd_game_accounts: 'Cuentas de juego',
-        dd_rs_sub: 'RS3 · OSRS', dd_wow_classic_sub: 'Era · SoD · Hardcore',
-        dd_wow_retail_sub: 'The War Within', dd_ps_rs: 'Servidores Privados RS',
-        dd_ps_list: 'Impact · RoatPkz · Orion · SpawnPK',
-        dd_pick_server: 'Elige tu servidor',
-        dd_bond_sub: '14 días · desde $8.00', dd_wow_sub_sub: '30 días · desde $12.00',
-        dd_calc: 'Calculadora de Servicios', dd_calc_sub: 'Skilling · PvM · Minigames · +más',
-        dd_osrs_sub: 'Pures · Mains · Skillers · +más',
-        // Mobile
-        mob_ps: 'Servidores Privados RS', mob_mem_svc: 'Membresías y Servicios',
-        mob_coins: 'Monedas', mob_accounts: 'Cuentas',
-        // Hero
-        hero_h1: 'El marketplace más<br>confiable de <em>Gaming Gold</em>',
-        hero_p: 'Gold, membresías y boosting para RuneScape y World of Warcraft. Entrega rápida, transacciones seguras.',
-        badge_delivery: '⚡ Entrega <10 min', badge_secure: '🔒 Pago seguro', badge_reviews: '⭐ 4.9 / 5 reseñas',
-        // Home
-        games_title: 'Juegos Disponibles',
-        pill_coins: '💰 Monedas', pill_accounts: '👤 Cuentas', pill_boosting: '⚡ Boosting', pill_mem: '🎫 Membresías',
-        // Tabs
-        tab_buy: '🛒 Comprar Gold', tab_sell: '💰 Vender Gold',
-        back_btn: '← Volver',
-        // RS
-        rs_desc: 'Compra y venta de gold · RS3 y OSRS',
-        rs_buy_title: '🛒 ¿Cuánto gold quieres comprar?',
-        rs_sell_title: '💰 ¿Cuánto gold quieres vender?',
-        gold_qty: 'Cantidad de Gold', delivery_method: 'Método de entrega',
-        del_trade_desc: 'GE o mundo acordado', del_wild_desc: 'Drop en zona PvP', del_tip_desc: 'Vía clan/dungeon',
-        del_mail_desc: 'Correo en juego', del_trade2_desc: 'Intercambio directo', del_guild_desc: 'Banco de guild',
-        price_per_m: 'Precio por millón', quantity_lbl: 'Cantidad', discount_lbl: 'Descuento',
-        delivery_via: 'Entrega vía', total_pay: 'Total a pagar',
-        order_btn: 'Hacer Pedido →', sell_btn: 'Vender Ahora →',
-        note_delivery: '⚡ Entrega en menos de 10 minutos · Pago seguro',
-        price_we_pay: 'Precio que pagamos por millón', you_receive: 'Recibirás',
-        note_sell: '💸 Pago inmediato · PayPal · Crypto',
-        // WoW Classic
-        wowc_desc: 'Compra y venta de gold · Era · SoD · Hardcore',
-        wowc_buy_title: '🏰 ¿Cuánto gold WoW Classic quieres comprar?',
-        wowc_sell_title: '🏰 ¿Cuánto gold WoW Classic quieres vender?',
-        // WoW Retail
-        wowr_desc: 'Compra y venta de gold · The War Within',
-        wowr_buy_title: '🌍 ¿Cuánto gold WoW Retail quieres comprar?',
-        wowr_sell_title: '🌍 ¿Cuánto gold WoW Retail quieres vender?',
-        // PS
-        ps_buy_title: '🛒 ¿Cuánto gold quieres comprar?',
-        // Memberships
-        mem_desc: 'RS Bond · WoW Suscripción',
-        // Boost
-        boost_desc: 'Selecciona el servicio y calcula tu presupuesto al instante',
-        boost_select: 'Selecciona una habilidad arriba', boost_title: '⚡ Cotización de Skilling',
-        level_from: 'Nivel Actual', level_to: 'Nivel Deseado',
-        skill_lbl: 'Habilidad', levels_up: 'Niveles a subir', price_per_lvl: 'Precio por nivel',
-        total_est: 'Total estimado', select_skill_btn: 'Selecciona una habilidad',
-        note_boost: 'Tiempo estimado según habilidad · Cuenta segura garantizada',
-        // OSRS Accounts
-        osrs_desc: 'Cuentas verificadas · Entrega segura · Garantía incluida',
-        filter_all: 'Todos', filter_pures: 'Pures', filter_mains: 'Mains',
-        filter_skillers: 'Skillers', filter_zerkers: 'Zerkers', filter_ironman: 'Ironman',
-        custom_acc: '¿Buscas una cuenta con stats específicos?',
-        we_get_it: 'y la conseguimos.',
-        // Footer
-        reputation: 'Nuestra Reputación — Verifica nuestras referencias',
-        pay_methods: 'Medios de pago aceptados',
-        footer_desc: 'Tu marketplace de confianza!',
-        footer_services: 'Servicios', footer_legal: 'Legal', footer_contact: 'Contacto',
-        footer_tos: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
-        footer_accounts_pol: 'Política de Cuentas', footer_refunds: 'Política de Reembolsos',
-        footer_boosting: 'Normas de Boosting',
-        contact_title: '¿Tienes alguna duda? Contáctanos',
-        contact_sub: 'Nuestro equipo está disponible 24/7. Respuesta inmediata garantizada.',
-        contact_discord_btn: 'Contactar por Discord',
-        copyright: '© 2026 VeikenGold. Todos los derechos reservados.',
-        footer_tagline: 'Entrega rápida · Pago seguro · Soporte 24/7',
-        currency_lbl: 'Moneda', lang_lbl: 'Idioma',
-        marketplace: 'El marketplace más', confiable: 'confiable de', game_gold: 'game gold',
-        delivery: 'Entrega <10 min', secure: 'Pago seguro', reviews: '4.9 / 5 reseñas',
-        contact_discord: 'Contáctanos por Discord',
+        accounts: 'Account Policy',
       }
     };
 
+
     function t(key) {
-      return translations[currentLang][key] || translations['en'][key] || key;
+      return translations.en[key] || key;
     }
 
     function applyTranslations() {
@@ -1164,63 +1416,130 @@ let boostRate=0, boostSkill='';
         const val = t(key);
         if (el.tagName === 'INPUT') el.placeholder = val;
         else if (el.hasAttribute('data-i18n-html')) el.innerHTML = val;
-        else el.textContent = val;
+        else {
+          // If element contains child elements (e.g. SVG icons), only update the text node
+          // to avoid destroying child elements like the dropdown arrow SVG
+          const hasChildElements = el.children.length > 0;
+          if (hasChildElements) {
+            // Find and update only the first text node, preserving child elements
+            for (const node of el.childNodes) {
+              if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                node.textContent = val + ' ';
+                break;
+              }
+            }
+          } else {
+            el.textContent = val;
+          }
+        }
       });
-      // Update auth tab labels
       const loginTab = document.getElementById('auth-tab-login');
       const regTab = document.getElementById('auth-tab-register');
       if (loginTab) loginTab.textContent = t('login');
       if (regTab) regTab.textContent = t('register');
-      // Update nav auth buttons
       const loginBtn = document.querySelector('.nav-login span');
       const regBtn = document.querySelector('.nav-register span');
       if (loginBtn) loginBtn.textContent = t('login');
       if (regBtn) regBtn.textContent = t('register');
     }
 
-    function setLang(lang) {
-      currentLang = lang;
-      document.getElementById('lang-flag').textContent = lang === 'en' ? '🇺🇸' : '🇪🇸';
-      document.getElementById('lang-code').textContent = lang.toUpperCase();
-      document.querySelectorAll('#lang-panel .nav-panel-item').forEach(b => b.classList.remove('active'));
-      const active = document.querySelector(`#lang-panel .nav-panel-item[onclick="setLang('${lang}')"]`);
-      if (active) active.classList.add('active');
-      applyTranslations();
-      closeAllPanels();
-    }
+    function setLang(lang) { applyTranslations(); }
 
-    function setCurrency(code, flag, symbol) {
+
+    // Called by onclick="selectCurrency(this)" on each currency button
+    function selectCurrency(btn) {
+      const code   = btn.dataset.code;
+      const symbol = btn.dataset.symbol;
       currentCurrency = { code, symbol, rate: rates[code] || 1 };
-      document.getElementById('currency-flag').textContent = flag;
+      // Copy flag image into nav button
+      const img = btn.querySelector('img');
+      document.getElementById('currency-flag').innerHTML = img ? img.outerHTML : '';
       document.getElementById('currency-code').textContent = code;
+      // Mark active button
       document.querySelectorAll('#currency-panel .nav-panel-item').forEach(b => b.classList.remove('active'));
-      const active = document.querySelector(`#currency-panel .nav-panel-item[onclick*="${code}"]`);
-      if (active) active.classList.add('active');
+      btn.classList.add('active');
       updateAllPrices();
       closeAllPanels();
     }
 
+    // Legacy alias in case anything else calls setCurrency(code)
+    function setCurrency(code) {
+      const btn = document.querySelector('#currency-panel .nav-panel-item[data-code="' + code + '"]');
+      if (btn) selectCurrency(btn);
+    }
+
+    // Inserts converted price line below any total element
+    function _fmt(n) {
+      return n >= 1000 ? Math.round(n).toLocaleString('en-US') : n.toFixed(2);
+    }
+
+    // setConverted     → respects current tab rate (buy or sell)
+    // setConvertedBuy  → always uses ratesBuy (for services we only sell: RSPS, Mem, Boosting)
+    function setConvertedBuy(elId, usdAmount) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      const prevSub = document.getElementById(elId + '-sub');
+      if (prevSub) prevSub.remove();
+      const { code, symbol: sym } = currentCurrency;
+      const rate = ratesBuy[code] || 1;
+      if (code === 'USD' || rate === 1) {
+        el.textContent = '$' + _fmt(usdAmount);
+        return;
+      }
+      el.textContent = sym + _fmt(usdAmount * rate);
+      const sub = document.createElement('div');
+      sub.id = elId + '-sub';
+      sub.className = 'price-usd-sub';
+      sub.textContent = '≈ $' + _fmt(usdAmount) + ' USD';
+      el.parentElement.insertAdjacentElement('afterend', sub);
+    }
+
+    function setConverted(elId, usdAmount) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      // Remove old sub label
+      const prevSub = document.getElementById(elId + '-sub');
+      if (prevSub) prevSub.remove();
+      const { code, symbol: sym, rate } = currentCurrency;
+      if (code === 'USD' || !rate || rate === 1) {
+        // USD: show plain dollar amount in the element
+        el.textContent = '$' + _fmt(usdAmount);
+        return;
+      }
+      // Non-USD: show converted big, USD small below
+      el.textContent = sym + _fmt(usdAmount * rate);
+      const sub = document.createElement('div');
+      sub.id = elId + '-sub';
+      sub.className = 'price-usd-sub';
+      sub.textContent = '≈ $' + _fmt(usdAmount) + ' USD';
+      el.parentElement.insertAdjacentElement('afterend', sub);
+    }
+
     function convertPrice(usdPrice) {
-      const converted = usdPrice * currentCurrency.rate;
-      const sym = currentCurrency.symbol;
-      const code = currentCurrency.code;
+      const { code, symbol: sym, rate } = currentCurrency;
       if (code === 'USD') return '';
-      if (converted >= 1000) return `≈ ${sym}${Math.round(converted).toLocaleString()} ${code}`;
-      return `≈ ${sym}${converted.toFixed(2)} ${code}`;
+      const converted = usdPrice * rate;
+      // Format based on magnitude
+      let formatted;
+      if (converted >= 100000)      formatted = Math.round(converted).toLocaleString('en-US');
+      else if (converted >= 1000)   formatted = Math.round(converted).toLocaleString('en-US');
+      else if (converted >= 10)     formatted = converted.toFixed(2);
+      else                          formatted = converted.toFixed(2);
+      return `<span class="price-converted">≈ ${sym}${formatted} ${code}</span>`;
     }
 
     function updateAllPrices() {
-      // Update game card prices
-      const priceMap = {
-        'desde $0.38/M': 0.38, 'desde $0.60/K': 0.60, 'desde $0.82/K': 0.82,
-        'desde $0.05': 0.05, 'desde $8.00': 8.00, 'desde $5.00': 5.00
-      };
-      // Re-run calculators to update totals
+      // ── Gold calculators ──
       try { calcRS('buy'); calcRS('sell'); } catch(e) {}
-      try { calcWowSimple('wowc','buy',0.60); calcWowSimple('wowc','sell',0.48); } catch(e) {}
-      try { calcWowSimple('wowr','buy',0.82); calcWowSimple('wowr','sell',0.65); } catch(e) {}
+      try { calcWowClassic('buy'); calcWowClassic('sell'); } catch(e) {}
+      try { calcWowRetail('buy');  calcWowRetail('sell');  } catch(e) {}
       try { calcPriv('buy'); calcPriv('sell'); } catch(e) {}
-      try { calcBoost(); } catch(e) {}
+      // ── Memberships ──
+      try { ['bond','wow2m','wow1m'].forEach(t => calcMem(t)); } catch(e) {}
+      // ── Boosting ──
+      try { updateBoostFooter(); } catch(e) {}
+      // ── Accounts — re-render cards with new currency ──
+      try { renderAccountGrid(); } catch(e) {}
     }
 
     // Override result display to show currency conversion
@@ -1241,10 +1560,183 @@ let boostRate=0, boostSkill='';
     });
 
     // ── AUTH MODAL ──
+    // ══════════════════════════════════════════
+    // FIREBASE AUTH — Registro e inicio de sesión
+    // ══════════════════════════════════════════
+    const FB_CONFIG = {
+      apiKey: "AIzaSyCEipnzMpimKSz2rY-3yyBMjxGJn-_Xnvc",
+      authDomain: "veikengold-ae654.firebaseapp.com",
+      projectId: "veikengold-ae654",
+      storageBucket: "veikengold-ae654.firebasestorage.app",
+      messagingSenderId: "630867963145",
+      appId: "1:630867963145:web:1ee6d3219fe8d22897f7d8"
+    };
+
+    const AVATARS = [
+      "https://s13.gifyu.com/images/bqu8F.png",
+      "https://s13.gifyu.com/images/bqu8U.png"
+    ];
+
+    let _fbAuth = null;
+    let _fbStore = null;
+    let _currentUser = null;
+
+    async function getFirebaseAuth() {
+      if (_fbAuth) return _fbAuth;
+      const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+      const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const { getFirestore } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const app = getApps().length ? getApps()[0] : initializeApp(FB_CONFIG);
+      _fbAuth  = getAuth(app);
+      _fbStore = getFirestore(app);
+      _fbAuth.onAuthStateChanged(user => {
+        _currentUser = user;
+        updateNavUI(user);
+      });
+      return _fbAuth;
+    }
+
+    function updateNavUI(user) {
+      const guest = document.getElementById('nav-auth-guest');
+      const loggedIn = document.getElementById('nav-auth-user');
+      if (!guest || !loggedIn) return;
+      if (user) {
+        guest.style.display = 'none';
+        loggedIn.style.display = 'flex';
+        const avatar = localStorage.getItem('vg_avatar_' + user.uid) || AVATARS[0];
+        const username = localStorage.getItem('vg_username_' + user.uid) || user.email.split('@')[0];
+        document.getElementById('nav-avatar').src = avatar;
+        document.getElementById('nav-username').textContent = username;
+      } else {
+        guest.style.display = 'flex';
+        loggedIn.style.display = 'none';
+      }
+    }
+
+    async function doRegister() {
+      const username = document.getElementById('reg-username').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const errEl    = document.getElementById('register-err');
+      const okEl     = document.getElementById('register-ok');
+      const btn      = document.getElementById('register-btn');
+      errEl.style.display = 'none';
+      okEl.style.display  = 'none';
+
+      if (!username) { errEl.textContent = 'Please enter a username.'; errEl.style.display = 'block'; return; }
+      if (!email)    { errEl.textContent = 'Please enter your email.'; errEl.style.display = 'block'; return; }
+      if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+
+      btn.disabled = true; btn.textContent = 'Creating account...';
+      try {
+        const { createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+        const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const auth = await getFirebaseAuth();
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+        localStorage.setItem('vg_avatar_' + cred.user.uid, avatar);
+        localStorage.setItem('vg_username_' + cred.user.uid, username);
+        await setDoc(doc(_fbStore, 'users', cred.user.uid), {
+          username, email, avatar, createdAt: new Date().toISOString()
+        });
+        okEl.textContent = 'Account created! Welcome, ' + username + ' 🎉';
+        okEl.style.display = 'block';
+        setTimeout(() => { closeAuth(); }, 1800);
+      } catch(e) {
+        const msgs = {
+          'auth/email-already-in-use': 'That email is already registered.',
+          'auth/invalid-email': 'Invalid email address.',
+          'auth/weak-password': 'Password too weak, use at least 6 characters.'
+        };
+        errEl.textContent = msgs[e.code] || 'Error: ' + e.message;
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false; btn.textContent = 'Crear Cuenta';
+    }
+
+    async function doLogin() {
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errEl    = document.getElementById('login-err');
+      const btn      = document.getElementById('login-btn');
+      errEl.style.display = 'none';
+
+      if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; return; }
+
+      btn.disabled = true; btn.textContent = 'Signing in...';
+      try {
+        const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+        const auth = await getFirebaseAuth();
+        await signInWithEmailAndPassword(auth, email, password);
+        closeAuth();
+      } catch(e) {
+        const msgs = {
+          'auth/user-not-found': 'No account found with that email.',
+          'auth/wrong-password': 'Incorrect password.',
+          'auth/invalid-credential': 'Incorrect email or password.',
+          'auth/invalid-email': 'Invalid email address.'
+        };
+        errEl.textContent = msgs[e.code] || 'Login failed. Please try again.';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false; btn.textContent = 'Iniciar Sesión';
+    }
+
+    async function doLogout() {
+      const { signOut } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const auth = await getFirebaseAuth();
+      await signOut(auth);
+      closeAuth();
+    }
+
+    async function openForgotPassword() {
+      const email = document.getElementById('login-email').value.trim();
+      const errEl = document.getElementById('login-err');
+      errEl.style.display = 'none';
+
+      if (!email) {
+        errEl.textContent = 'Escribe tu correo arriba y luego haz clic en ¿Olvidaste tu contraseña?';
+        errEl.style.display = 'block';
+        return;
+      }
+      try {
+        const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+        const auth = await getFirebaseAuth();
+        await sendPasswordResetEmail(auth, email);
+        errEl.style.background = 'rgba(74,204,136,.1)';
+        errEl.style.borderColor = 'rgba(74,204,136,.3)';
+        errEl.style.color = '#4acc88';
+        errEl.textContent = '✓ Te enviamos un email para resetear tu contraseña. Revisa tu bandeja.';
+        errEl.style.display = 'block';
+      } catch(e) {
+        const msgs = {
+          'auth/user-not-found': 'No account found with that email.',
+          'auth/invalid-email': 'Invalid email address.'
+        };
+        errEl.style.background = 'rgba(255,95,95,.1)';
+        errEl.style.borderColor = 'rgba(255,95,95,.3)';
+        errEl.style.color = '#ff5f5f';
+        errEl.textContent = msgs[e.code] || 'Error al enviar el email.';
+        errEl.style.display = 'block';
+      }
+    }
+
+    // Inicializar auth al cargar la página
+    getFirebaseAuth();
+
     function openAuth(tab) {
       document.getElementById('auth-modal').style.display = 'block';
       document.body.style.overflow = 'hidden';
-      switchAuthTab(tab || 'login');
+      if (tab === 'profile' || (_currentUser && tab !== 'register')) {
+        switchAuthTab('profile');
+        const avatar = localStorage.getItem('vg_avatar_' + _currentUser.uid) || AVATARS[0];
+        const username = localStorage.getItem('vg_username_' + _currentUser.uid) || _currentUser.email.split('@')[0];
+        document.getElementById('profile-avatar').src = avatar;
+        document.getElementById('profile-username').textContent = username;
+        document.getElementById('profile-email').textContent = _currentUser.email;
+      } else {
+        switchAuthTab(tab || 'login');
+      }
     }
     function closeAuth(e) {
       if (e && e.target !== document.querySelector('#auth-modal .auth-overlay')) return;
@@ -1254,7 +1746,8 @@ let boostRate=0, boostSkill='';
     function switchAuthTab(tab) {
       document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.auth-section').forEach(s => s.classList.remove('active'));
-      document.getElementById('auth-tab-' + tab).classList.add('active');
+      const tabEl = document.getElementById('auth-tab-' + tab);
+      if (tabEl) tabEl.classList.add('active');
       document.getElementById('auth-' + tab).classList.add('active');
     }
     document.addEventListener('keydown', e => {
@@ -1262,9 +1755,17 @@ let boostRate=0, boostSkill='';
     });
     // ── ACCOUNTS FILTER ──
     function filterAccs(btn, type) {
+      // Update active button
       document.querySelectorAll('.acc-filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderAccountGrid(type);
+      // Show/hide cards
+      document.querySelectorAll('.acc-card').forEach(card => {
+        if (type === 'all' || card.dataset.type === type) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
     }
     // ── Initialize with English on page load ──
     document.addEventListener('DOMContentLoaded', function() {
@@ -1275,32 +1776,36 @@ let boostRate=0, boostSkill='';
     });
 
     // ══════════════════════════════════════════
-    // OSRS ACCOUNTS — Fuente única: dashboard (localStorage)
-    // El Sheet NO se usa para cuentas. Todo se gestiona desde admin-dashboard.html
+    // OSRS ACCOUNTS — Lee desde Firebase Firestore
     // ══════════════════════════════════════════
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCEipnzMpimKSz2rY-3yyBMjxGJn-_Xnvc",
+      authDomain: "veikengold-ae654.firebaseapp.com",
+      projectId: "veikengold-ae654",
+      storageBucket: "veikengold-ae654.firebasestorage.app",
+      messagingSenderId: "630867963145",
+      appId: "1:630867963145:web:1ee6d3219fe8d22897f7d8"
+    };
 
-    const VG_DB_KEY = 'vg_accounts'; // misma clave que usa el dashboard
-    let ACCOUNTS_DATA = [];
+    let ACCOUNTS_DATA    = [];
     let accCurrentFilter = 'all';
 
-    function loadOSRSAccounts() {
+    async function loadOSRSAccounts() {
       try {
-        const raw = localStorage.getItem(VG_DB_KEY);
-        const all = raw ? JSON.parse(raw) : [];
-        // Solo mostrar cuentas en estado "stock" en la tienda pública
-        ACCOUNTS_DATA = all.filter(a => a.title && a.status === 'stock');
+        const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+        const { getFirestore, collection, getDocs, query, where } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+        const db  = getFirestore(app);
+        const snap = await getDocs(query(collection(db, "accounts"), where("status", "==", "stock")));
+        ACCOUNTS_DATA = [];
+        snap.forEach(d => ACCOUNTS_DATA.push({ id: d.id, ...d.data() }));
+        ACCOUNTS_DATA.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
       } catch(e) {
+        console.error("[ACCOUNTS] Error cargando desde Firebase:", e);
         ACCOUNTS_DATA = [];
       }
       renderAccountGrid('all');
     }
-
-    // Escuchar cambios del dashboard en tiempo real (mismo navegador, distinta pestaña)
-    window.addEventListener('storage', function(e) {
-      if (e.key === VG_DB_KEY) {
-        loadOSRSAccounts();
-      }
-    });
 
     function renderAccountGrid(filter) {
       accCurrentFilter = filter;
@@ -1320,17 +1825,24 @@ let boostRate=0, boostSkill='';
           empty.style.display = 'block';
           empty.innerHTML = ACCOUNTS_DATA.length === 0
             ? `<div style="font-size:36px;margin-bottom:12px;">🎮</div>
-               <div style="font-size:14px;color:var(--text2);font-weight:600;">No hay cuentas disponibles aún</div>
+               <div style="font-size:14px;color:var(--text2);font-weight:600;">No accounts available yet</div>
                <div style="font-size:12px;color:var(--muted);margin-top:6px;">Vuelve pronto o contáctanos por Discord</div>`
             : `<div style="font-size:36px;margin-bottom:12px;">🔍</div>
-               <div style="font-size:14px;color:var(--text2);font-weight:600;">No hay cuentas en esta categoría</div>
-               <div style="font-size:12px;color:var(--muted);margin-top:6px;">Prueba otro filtro</div>`;
+               <div style="font-size:14px;color:var(--text2);font-weight:600;">No accounts found in this category</div>
+               <div style="font-size:12px;color:var(--muted);margin-top:6px;">Try another filter</div>`;
         }
         return;
       }
 
       if (empty) empty.style.display = 'none';
       if (grid)  { grid.style.display = 'grid'; grid.innerHTML = data.map((acc, idx) => buildAccCard(acc, idx)).join(''); }
+    }
+
+    // Override filterAccs para usar renderAccountGrid dinámico
+    function filterAccs(btn, type) {
+      document.querySelectorAll('.acc-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAccountGrid(type);
     }
 
     function buildAccCard(acc, idx) {
@@ -1341,18 +1853,18 @@ let boostRate=0, boostSkill='';
       }[type] || 'acc-badge-main';
       const cardId = 'acc-card-' + idx;
 
-      // Stats — formato "Atk:60,Str:99,..."
+      // Stats: "Atk:60,Str:99,..."
       const stats = (acc.stats || '').split(',').map(s => {
         const [lbl, val] = s.trim().split(':');
         return lbl && val ? `<div class="acc-stat"><span class="acc-stat-val">${val.trim()}</span><span class="acc-stat-lbl">${lbl.trim()}</span></div>` : '';
       }).filter(Boolean).join('');
 
-      // Tags — formato "Quest Cape ✓, Fire Cape ✓"
+      // Tags: "Quest Cape ✓, Fire Cape ✓"
       const tags = (acc.tags || '').split(',').map(t =>
         t.trim() ? `<span class="acc-tag">${t.trim()}</span>` : ''
       ).filter(Boolean).join('');
 
-      // Imágenes — el dashboard guarda array en acc.images
+      // Imágenes — el dashboard guarda array JSON en MySQL
       let images = [];
       if (Array.isArray(acc.images) && acc.images.length > 0) {
         images = acc.images.filter(Boolean);
@@ -1387,9 +1899,22 @@ let boostRate=0, boostSkill='';
       }
 
       const price = parseFloat(acc.price || 0);
-      const priceHtml = price > 0
-        ? `<span class="acc-price-tag">$<strong>${price.toFixed(2)}</strong></span>`
-        : `<span class="acc-price-tag" style="font-size:11px;color:var(--muted);">Consultar</span>`;
+      let priceHtml;
+      if (price > 0) {
+        const { code, symbol: sym, rate } = currentCurrency;
+        if (code === 'USD' || !rate || rate === 1) {
+          priceHtml = `<span class="acc-price-tag">$<strong>${price.toFixed(2)}</strong></span>`;
+        } else {
+          const conv = price * rate;
+          const fmtC = conv >= 1000 ? Math.round(conv).toLocaleString('en-US') : conv.toFixed(2);
+          priceHtml = `<span class="acc-price-tag">
+            ${sym}<strong>${fmtC}</strong>
+            <span class="acc-price-usd">≈ $${price.toFixed(2)} USD</span>
+          </span>`;
+        }
+      } else {
+        priceHtml = `<span class="acc-price-tag" style="font-size:11px;color:var(--muted);">Contact us</span>`;
+      }
 
       return `<div class="acc-card" data-type="${type}" id="${cardId}">
         ${imgHtml}
@@ -1397,11 +1922,11 @@ let boostRate=0, boostSkill='';
           <span class="acc-type-badge ${badgeClass}">${type.toUpperCase()}</span>
           ${priceHtml}
         </div>
-        ${acc.title    ? `<div class="acc-card-title">${acc.title}</div>` : ''}
+        ${acc.title    ? `<div class="acc-card-title">${acc.title}</div>`       : ''}
         ${acc.subtitle ? `<div class="acc-card-subtitle">${acc.subtitle}</div>` : ''}
         ${stats ? `<div class="acc-stats-grid">${stats}</div>` : ''}
-        ${tags  ? `<div class="acc-tags">${tags}</div>` : ''}
-        <button class="acc-buy-btn" onclick="openModal()">Consultar precio</button>
+        ${tags  ? `<div class="acc-tags">${tags}</div>`         : ''}
+        <button class="acc-buy-btn" onclick="openChatForAccount('${acc.title}',${acc.price||0},'${acc.type||'account'}')">🛒 Buy</button>
       </div>`;
     }
 
@@ -1514,38 +2039,8 @@ let boostRate=0, boostSkill='';
       renderAccountGrid(type);
     }
 
-    // ══════════════════════════════════════════
-    // ADMIN PANEL
-    // ══════════════════════════════════════════
-
-    // ⬇️ CAMBIA ESTA CONTRASEÑA antes de subir a producción
-    // Acceso al dashboard: triple-click en el logo → abre admin-dashboard.html
-
-    let adminLogoClickCount = 0;
-    let adminLogoClickTimer = null;
-
-    function setupAdminAccess() {
-      // Triple-click en el logo abre el admin
-      const logo = document.getElementById('logo-wrap-admin');
-      if (!logo) return;
-      logo.addEventListener('click', function(e) {
-        adminLogoClickCount++;
-        clearTimeout(adminLogoClickTimer);
-        if (adminLogoClickCount >= 3) {
-          adminLogoClickCount = 0;
-          openAdminPanel();
-        } else {
-          adminLogoClickTimer = setTimeout(() => { adminLogoClickCount = 0; }, 600);
-        }
-      });
-    }
-
-    function openAdminPanel() {
-      window.open('admin-dashboard.html', '_blank');
-    }
+    function setupAdminAccess() {} // Access removed — use secret URL
 
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        closeLightbox();
-      }
+      if (e.key === 'Escape') closeLightbox();
     });
