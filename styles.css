@@ -26,7 +26,7 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
     .nav {
-      display: flex; align-items: stretch; padding: 0 24px; height: 54px;
+      display: flex; align-items: stretch; padding: 0 24px; height: 62px;
       background: rgba(15,15,22,0.95); border-bottom: 1px solid var(--border);
       position: sticky; top: 0; z-index: 100;
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -42,14 +42,14 @@
     .nav-item { position: relative; display: flex; align-items: stretch; border-right: 1px solid var(--border); }
     .nav-item:last-child { border-right: none; }
     .nav-btn {
-      display: flex; align-items: center; gap: 5px; padding: 0 13px;
-      font-size: 12.5px; color: var(--muted); background: none; border: none;
+      display: flex; align-items: center; gap: 7px; padding: 0 16px;
+      font-size: 13.5px; color: var(--text2); background: none; border: none;
       cursor: pointer; font-family: 'DM Sans', sans-serif;
       border-bottom: 2px solid transparent; transition: color .15s, border-color .15s;
-      white-space: nowrap; height: 100%; font-weight: 500;
+      white-space: nowrap; height: 100%; font-weight: 600;
     }
     .nav-btn:hover, .nav-btn.open { color: var(--accent); border-bottom-color: var(--accent); }
-    .nav-btn svg { width: 10px; height: 10px; fill: none; stroke: var(--text2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s, stroke .15s; flex-shrink: 0; }
+    .nav-btn svg { width: 12px; height: 12px; fill: none; stroke: var(--text2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s, stroke .15s; flex-shrink: 0; opacity: 0.8; }
     .nav-btn:hover svg, .nav-btn.open svg { stroke: var(--accent); }
     .nav-btn.open svg { transform: rotate(180deg); }
     .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
@@ -140,7 +140,7 @@
 
     .hero {
       background: transparent;
-      padding: 48px 24px 44px; display: flex; align-items: center;
+      padding: 80px 30px 80px; display: flex; align-items: center;
       justify-content: space-between; gap: 28px;
       border-bottom: 1px solid var(--border); flex-wrap: wrap; position: relative; overflow: hidden;
     }
@@ -167,7 +167,7 @@
     .hero-badge { display: flex; align-items: center; gap: 6px; background: rgba(77,184,255,.08); border: 1px solid rgba(77,184,255,.2); color: var(--accent); font-size: 11px; padding: 5px 11px; border-radius: 20px; font-weight: 500; }
     .hero-logo-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; flex-shrink: 0; position: relative; z-index: 1; }
     .hero-logo-ring {
-      width: 140px; height: 140px; border-radius: 50%;
+      width: 180px; height: 270px; border-radius: 50%;
       border: 2.5px solid rgba(77,184,255,.45);
       display: flex; align-items: center; justify-content: center;
       overflow: hidden;
@@ -616,7 +616,7 @@
     .btn-discord:hover { background: #4752c4; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(88,101,242,.35); }
     .btn-discord svg { width: 20px; height: 20px; fill: #fff; }
     .footer-reviews { padding: 30px 24px; }
-    .footer-reviews-title { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 18px; }
+    .footer-reviews-title { font-size: 13px; color: var(--text2); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 22px; text-align: center; }
     .reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 12px; justify-content: center; max-width: 750px; margin: 0 auto; }
     .review-card {
       background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-lg);
@@ -641,9 +641,9 @@
     }
     .pay-band-label {
       text-align: center;
-      font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
-      text-transform: uppercase; color: var(--dim);
-      margin-bottom: 14px;
+      font-size: 13px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text2);
+      margin-bottom: 18px;
     }
     .pay-track-wrap {
       position: relative; overflow: hidden;
@@ -1031,7 +1031,20 @@
     }
 
     /* ── CURRENCY DISPLAY ── */
-    .price-converted { font-size: 11px; color: var(--dim); display: block; margin-top: 1px; }
+    .price-converted { display: none; } /* legacy, replaced */
+    /* Main total shown big in selected currency */
+    .result-total-value { font-family: 'Rajdhani', sans-serif; font-size: 30px; font-weight: 700; color: var(--accent); line-height: 1; }
+    /* Small USD sub-label shown below when non-USD selected */
+    .price-usd-sub {
+      display: block; margin-top: 4px;
+      font-size: 11px; color: var(--dim); font-weight: 400;
+      font-family: 'DM Sans', sans-serif;
+    }
+    /* Account card converted price */
+    .acc-price-usd {
+      display: block; font-size: 10px; color: var(--dim);
+      font-weight: 400; margin-top: 1px;
+    }
 
     @media (max-width: 768px) {
       .nav-auth-btn span { display: none; }
@@ -1047,7 +1060,7 @@
     /* ── NEW FOOTER ── */
     .footer { background: #0a0a0f; border-top: 1px solid var(--border); }
     .footer-reviews { padding: 30px 24px; border-bottom: 1px solid var(--border); }
-    .footer-reviews-title { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 18px; text-align: center; }
+    .footer-reviews-title { font-size: 13px; color: var(--text2); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 22px; text-align: center; }
     .reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 12px; justify-content: center; max-width: 750px; margin: 0 auto; }
     .review-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: border-color .2s, transform .15s; }
     .review-card:hover { border-color: var(--accent); transform: translateY(-2px); }
@@ -1375,3 +1388,100 @@
       .lb-next { right: -40px; }
       .lb-nav { width: 34px; font-size: 22px; }
     }
+    /* ── WoW Server / Region / Faction selector buttons ── */
+    .wow-select-grid {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .wow-select-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 16px; border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg3); color: var(--muted);
+      font-size: 13px; font-weight: 500;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all .15s;
+    }
+    .wow-select-btn:hover {
+      border-color: var(--accent); color: var(--text);
+    }
+    .wow-select-btn.active {
+      border-color: var(--accent);
+      background: rgba(77,184,255,.1);
+      color: var(--accent); font-weight: 600;
+    }
+    /* ── Payment Method Dropdown ── */
+    .payment-select-wrap {
+      position: relative; display: flex; align-items: center;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      transition: border-color .15s;
+    }
+    .payment-select-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(77,184,255,.1);
+    }
+    .payment-select {
+      appearance: none; -webkit-appearance: none;
+      width: 100%; padding: 11px 40px 11px 14px;
+      background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 13.5px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+    }
+    .payment-select option, .payment-select optgroup {
+      background: #0d0d1a; color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .payment-select optgroup {
+      color: var(--accent); font-size: 11px;
+      font-weight: 700; letter-spacing: .5px;
+    }
+    .payment-select-arrow {
+      position: absolute; right: 12px;
+      color: var(--dim); font-size: 12px;
+      pointer-events: none;
+    }
+    /* ── Custom Payment Method Dropdown ── */
+    .pay-drop-wrap { position: relative; width: 100%; }
+
+    .pay-drop-btn {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text); font-size: 13.5px;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      transition: border-color .15s; text-align: left;
+    }
+    .pay-drop-btn:hover { border-color: var(--accent); }
+    .pay-drop-btn.open  { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(77,184,255,.1); }
+
+    .pay-drop-icon { width: 22px; height: 22px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+    .pay-drop-text { flex: 1; }
+    .pay-drop-arrow { color: var(--dim); font-size: 11px; transition: transform .2s; }
+    .pay-drop-btn.open .pay-drop-arrow { transform: rotate(180deg); }
+
+    .pay-drop-menu {
+      display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 200;
+      background: #0f0f1e; border: 1px solid var(--border); border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5); overflow: hidden;
+      max-height: 280px; overflow-y: auto;
+    }
+    .pay-drop-menu.open { display: block; animation: dropIn .15s ease; }
+
+    .pay-drop-group {
+      padding: 8px 14px 4px; font-size: 10px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--accent);
+      border-top: 1px solid var(--border); margin-top: 2px;
+    }
+    .pay-drop-group:first-child { border-top: none; margin-top: 0; }
+
+    .pay-drop-item {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; background: none; border: none;
+      color: var(--text); font-size: 13px;
+      font-family: 'DM Sans', sans-serif; cursor: pointer; text-align: left;
+      transition: background .12s;
+    }
+    .pay-drop-item:hover { background: rgba(77,184,255,.07); }
+    .pay-drop-item.active { background: rgba(77,184,255,.12); color: var(--accent); }
+    .pay-drop-item img { width: 22px; height: 22px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
